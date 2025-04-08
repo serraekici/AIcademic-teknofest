@@ -1,11 +1,17 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.contrib.auth.models import User
 from .models import Course
+from .models import Student
 from .serializers import CourseSerializer
 from rest_framework import viewsets
-from .models import Student
 from .serializers import StudentSerializer
-
+from .serializers import UserSerializer
+from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics
+from .serializers import RegisterSerializer
+from rest_framework.permissions import AllowAny
 
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
@@ -15,17 +21,20 @@ class StudentViewSet(viewsets.ModelViewSet):
 def welcome(request):
     return JsonResponse({"message": "Uygulama Backend Calisiyor!"})
 
-from rest_framework import viewsets
-from .models import Course
-from .serializers import CourseSerializer
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
 
-from .models import Schedule
-from .serializers import ScheduleSerializer
 
-class ScheduleViewSet(viewsets.ModelViewSet):
-    queryset = Schedule.objects.all()
-    serializer_class = ScheduleSerializer
+class RegisterView(generics.CreateAPIView):
+    serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
+
+
+class UserListViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
+
+
