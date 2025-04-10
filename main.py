@@ -8,6 +8,7 @@ def search_academic_articles(topic):
     if "results" not in data:
         return "Üzgünüm1., bu konuda veri bulamadım.dcsdsdf"
 
+
     reply = f"🔎 İşte '{topic}' hakkında bazı akademik makaleler:\n\n"
     for i, result in enumerate(data["results"], start=1):
         title = result["title"]
