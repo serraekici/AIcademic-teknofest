@@ -6,7 +6,7 @@ def search_academic_articles(topic):
     data = response.json()
     
     if "results" not in data:
-        return "Üzgünüm, bu konuda veri bulamadım."
+        return "Üzgünüm1., bu konuda veri bulamadım.dcsdsdf"
 
     reply = f"🔎 İşte '{topic}' hakkında bazı akademik makaleler:\n\n"
     for i, result in enumerate(data["results"], start=1):
