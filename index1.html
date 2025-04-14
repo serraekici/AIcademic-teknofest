@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Hub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="left">
+      <h1>Explore, Learn, Connect</h1>
+      <p>Discover podcasts for every study mood!</p>
+
+      <!-- Görsel buraya düzgünce eklendi -->
+      <img src="study.svg" alt="Study Illustration" class="study-image">
+
+      <p class="caption">Enhance your study sessions with podcasts!</p>
+    </div>
+    <div class="right">
+      <h2>Get Started for Free</h2>
+      <p class="note">Unlock premium features with a student email.</p>
+      <form>
+        <input type="text" placeholder="Your full name" required>
+        <input type="email" placeholder="Your university email" required>
+        <input type="password" placeholder="Create a password" required>
+        <input type="password" placeholder="Confirm password" required>
+        <button type="submit">Sign up</button>
+      </form>
+      <p class="or">or sign up with</p>
+      <div class="social-buttons">
+        <button class="google">Google</button>
+        <button class="facebook">Facebook</button>
+      </div>
+    </div>
+  </div>
+
+  <form id="register-form">
+    <input type="text" id="username" placeholder="Kullanıcı Adı" required><br>
+    <input type="email" id="email" placeholder="Email" required><br>
+    <input type="password" id="password" placeholder="Şifre" required><br>
+    <input type="password" id="password2" placeholder="Şifre Tekrar" required><br>
+    <button type="submit">Kayıt Ol</button>
+  </form>
+  
+  <div id="response-message"></div>
+  
+  <script>
+    const form = document.getElementById("register-form");
+  
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault(); // Sayfa yenilenmesin
+  
+      const username = document.getElementById("username").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const password2 = document.getElementById("password2").value;
+  
+      const response = await fetch("http://127.0.0.1:8000/api/register/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+          password2
+        })
+      });
+  
+      const result = await response.json();
+  
+      const messageBox = document.getElementById("response-message");
+  
+      if (response.ok) {
+        messageBox.innerText = "Kayıt başarılı!";
+        messageBox.style.color = "green";
+        form.reset();
+      } else {
+        messageBox.innerText = JSON.stringify(result, null, 2);
+        messageBox.style.color = "red";
+      }
+    });
+  </script>
+  
+</body>
+</html>
+
+
