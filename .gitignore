@@ -1,0 +1,16 @@
+# Python cache dosyaları
+__pycache__/
+*.pyc
+
+# Sanal ortam
+.venv/
+
+# Log dosyaları
+*.log
+
+# Yerel veritabanı (takip edilmemeli!)
+db.sqlite3
+*.pyc
+__pycache__/
+.venv/
+.venv/
