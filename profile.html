@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Profilim</title>
+  <style>
+    body { font-family: Arial; padding: 30px; max-width: 600px; margin: auto; }
+    h2 { color: #444; }
+    .info { margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <h2>Hoş geldin!</h2>
+  <div class="info"><strong>Kullanıcı adı:</strong> <span id="username"></span></div>
+  <div class="info"><strong>Email:</strong> <span id="email"></span></div>
+  <div class="info"><strongÜyelik tarihi:</strong> <span id="joined"></span></div>
+
+  <script>
+    const token = localStorage.getItem("access");
+
+    fetch("http://127.0.0.1:8000/api/profile/", {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("username").innerText = data.username;
+      document.getElementById("email").innerText = data.email;
+      document.getElementById("joined").innerText = new Date(data.date_joined).toLocaleDateString();
+    })
+    .catch(error => {
+      alert("Giriş yapman gerekiyor! 😢");
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>

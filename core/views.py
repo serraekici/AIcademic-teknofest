@@ -21,6 +21,61 @@ from rest_framework.response import Response
 def protected_view(request):
     return Response({"message": f"Merhaba {request.user.username}, giriş yaptın!"})
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def profile_view(request):
+    user = request.user
+    return Response({
+        "username": user.username,
+        "email": user.email,
+        "date_joined": user.date_joined
+    })
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def schedule_view(request):
+    # Şimdilik farazi veriler
+    data = [
+        {
+            "lesson": "Matematik 1",
+            "exam_type": "Vize",
+            "exam_date": "2024-12-05",
+            "exam_time": "10:00"
+        },
+        {
+            "lesson": "Fizik 1",
+            "exam_type": "Final",
+            "exam_date": "2024-12-20",
+            "exam_time": "13:30"
+        }
+    ]
+    return Response(data)
+
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser
+from rest_framework.response import Response
+
+@api_view(['POST'])
+@parser_classes([MultiPartParser])
+def upload_exam_file(request):
+    uploaded_file = request.FILES.get('exam_file')
+    
+    if uploaded_file:
+        # Gelecekte burada yapay zeka işleme yapılacak 🤖
+        print(f"Yüklenen dosya: {uploaded_file.name}")
+        return Response({"message": "Dosya alındı, işleniyor..."})
+    else:
+        return Response({"error": "Dosya alınamadı."}, status=400)
+
+
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer

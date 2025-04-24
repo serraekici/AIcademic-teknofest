@@ -6,7 +6,9 @@ from django.urls import path
 from .views import RegisterView
 from .views import UserListViewSet
 from .views import protected_view
-
+from .views import profile_view
+from .views import schedule_view
+from .views import upload_exam_file
 router = DefaultRouter()
 router.register(r'students', StudentViewSet)
 router.register(r'courses', CourseViewSet)  # 👈 bu satır kesinlikle olmalı
@@ -19,6 +21,9 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('register/', RegisterView.as_view(), name='register'),
     path('protected/', protected_view, name='protected'),
+    path('profile/', profile_view, name='profile'),
+    path('schedule/', schedule_view, name='schedule'),
+    path('upload-exam/', upload_exam_file, name='upload_exam'),
 ]
 
 
