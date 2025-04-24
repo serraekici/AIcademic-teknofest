@@ -5,7 +5,7 @@ from .views_auth import RegisterView, LoginView
 from django.urls import path
 from .views import RegisterView
 from .views import UserListViewSet
-
+from .views import protected_view
 
 router = DefaultRouter()
 router.register(r'students', StudentViewSet)
@@ -18,6 +18,7 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('register/', RegisterView.as_view(), name='register'),
+    path('protected/', protected_view, name='protected'),
 ]
 
 
