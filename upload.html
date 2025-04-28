@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Sınav Takvimi Yükle</title>
+  <style>
+    body { font-family: Arial; padding: 30px; }
+    .box {
+      border: 2px dashed #ccc;
+      padding: 40px;
+      border-radius: 10px;
+      text-align: center;
+      background-color: #f9f9f9;
+      max-width: 500px;
+      margin: auto;
+    }
+    input[type="file"] {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Sınav Takvimi Belgesini Yükle</h2>
+    <form id="upload-form" enctype="multipart/form-data">
+      <input type="file" id="exam-file" name="exam_file" accept=".pdf,.jpg,.jpeg,.png,.docx" required />
+      <br /><br />
+      <button type="submit">Yükle</button>
+    </form>
+    <p id="status-msg"></p>
+  </div>
+
+  <script>
+    const form = document.getElementById("upload-form");
+    const msg = document.getElementById("status-msg");
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const fileInput = document.getElementById("exam-file");
+      const formData = new FormData();
+      formData.append("exam_file", fileInput.files[0]);
+
+      const response = await fetch("http://127.0.0.1:8000/api/upload-exam/", {
+        method: "POST",
+        body: formData
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        msg.innerText = "Yükleme başarılı! 🎉 Dosya alındı ve işleniyor...";
+        msg.style.color = "green";
+      } else {
+        msg.innerText = "Bir hata oluştu: " + JSON.stringify(result);
+        msg.style.color = "red";
+      }
+    });
+  </script>
+</body>
+</html>

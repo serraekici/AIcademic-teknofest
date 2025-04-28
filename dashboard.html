@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Korumalı Alan</title>
+</head>
+<body>
+  <h2>Korumalı Sayfa</h2>
+  <button onclick="getProtectedData()">Veriyi Göster</button>
+  <div id="result"></div>
+
+  <script>
+    function getProtectedData() {
+      const token = localStorage.getItem("access");  // login sırasında kaydetmiştik
+
+      fetch("http://127.0.0.1:8000/api/protected/", {
+        method: "GET",
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("result").innerText = data.message;
+        })
+        .catch(error => {
+          document.getElementById("result").innerText = "Erişim reddedildi 🚫";
+        });
+    }
+  </script>
+</body>
+</html>
