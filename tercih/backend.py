@@ -2,17 +2,17 @@ from flask import Flask, request, jsonify, send_from_directory
 import json
 import unicodedata
 import re
-from app.openai_chat import analyze_user_message
-from app.yok import filtrele_json_programlar
+from openai_chat import analyze_user_message
+from yok import filtrele_json_programlar
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Verileri yükle
-with open(os.path.join(BASE_DIR, "uni_video_links.json"), "r", encoding="utf-8") as f:
+with open(os.path.join(BASE_DIR, "data", "uni_video_links.json"), "r", encoding="utf-8") as f:
     uni_video_links = json.load(f)
 
-with open(os.path.join(BASE_DIR,  "universities.json"), "r", encoding="utf-8") as f:
+with open(os.path.join(BASE_DIR, "data", "universities.json"), "r", encoding="utf-8") as f:
     universities_data = json.load(f)
 
 
@@ -33,11 +33,11 @@ def make_clickable(link):
         return "https://" + link
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", static_url_path="")
 
 @app.route("/")
 def index():
-    return send_from_directory('', 'index.html')
+    return app.send_static_file('index.html')
 
 @app.route("/analyze", methods=["POST"])
 def analyze_and_recommend():

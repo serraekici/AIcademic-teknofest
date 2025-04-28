@@ -67,3 +67,6 @@ zope.interface==6.1
 openai
 python-dotenv
 flask
+flask-cors
+python-docx
+pytesseract 

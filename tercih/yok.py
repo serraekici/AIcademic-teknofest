@@ -14,7 +14,7 @@ def normalize(text):
 
 # ✅ filtrele_json_programlar() fonksiyonu – çoklu ilgi alanı + başarı sırası + şehir + öğretmenlik kökü + boş sıralama kontrolü
 def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", siralama_kullanici: float = None, sehirler: list = None, sinava_girdi: bool = True):
-    data_path = os.path.join(os.path.dirname(__file__), '..', 'data.json')
+    data_path = os.path.join(os.path.dirname(__file__), 'data', 'data.json')
 
     with open(data_path, "r", encoding="utf-8") as f:
         data = json.load(f)
