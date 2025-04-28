@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ders Çalışma Chatbotu</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f1f1;
+            margin: 0;
+            padding: 0;
+        }
+
+        .chat-container {
+            width: 400px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #chat-box {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bot-message, .user-message {
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 75%;
+        }
+
+        .bot-message {
+            background-color: #dcf8c6;
+            align-self: flex-start;
+        }
+
+        .user-message {
+            background-color: #34b7f1;
+            color: white;
+            align-self: flex-end;
+        }
+
+        #input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #25d366;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1ebe5d;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="chat-container">
+    <h1>🎓 Ders Çalışma Chatbotu</h1>
+
+    <div id="chat-box">
+        <div class="bot-message">🤖 Merhaba! Ders çalışma programı oluşturmamı ister misin? (evet / hayır)</div>
+    </div>
+
+    <div id="input-area">
+        <input type="text" id="user-input" placeholder="Mesajını yaz...">
+        <button onclick="sendMessage()">Gönder</button>
+    </div>
+
+    <input type="file" id="file-input" style="display: none;" multiple>
+</div>
+
+<script>
+let chatState = "start"; 
+let filesToUpload = [];
+
+function sendMessage() {
+    const input = document.getElementById("user-input");
+    const text = input.value.trim();
+    if (!text) return;
+
+    addMessage(text, "user-message");
+    input.value = "";
+
+    handleConversation(text.toLowerCase());
+}
+
+function addMessage(text, className) {
+    const chatBox = document.getElementById("chat-box");
+    const div = document.createElement("div");
+    div.className = className;
+    div.innerText = text;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function handleConversation(message) {
+    if (chatState === "start") {
+        if (message.includes("evet")) {
+            addMessage("📄 Sınav takvimin var mı? (evet / hayır)", "bot-message");
+            chatState = "askExam";
+        } else {
+            addMessage("🚫 Tamam, görüşmek üzere!", "bot-message");
+            chatState = "end";
+        }
+        return;
+    }
+
+    if (chatState === "askExam") {
+        if (message.includes("evet")) {
+            addMessage("📂 Lütfen sınav takvimi dosyasını yükleyin.", "bot-message");
+            document.getElementById('file-input').style.display = "block";
+            document.getElementById('file-input').onchange = (e) => {
+                filesToUpload.push(...e.target.files);
+                addMessage("✅ Sınav takvimi yüklendi. Ders programın var mı? (evet / hayır)", "bot-message");
+                document.getElementById('file-input').style.display = "none";
+                chatState = "askSchedule";
+            };
+        } else {
+            addMessage("📚 Ders programın var mı? (evet / hayır)", "bot-message");
+            chatState = "askSchedule";
+        }
+        return;
+    }
+
+    if (chatState === "askSchedule") {
+        if (message.includes("evet")) {
+            addMessage("📂 Lütfen ders programı dosyasını yükleyin.", "bot-message");
+            document.getElementById('file-input').style.display = "block";
+            document.getElementById('file-input').onchange = (e) => {
+                filesToUpload.push(...e.target.files);
+                document.getElementById('file-input').style.display = "none";
+                askPriority();
+            };
+        } else {
+            askPriority();
+        }
+        return;
+    }
+}
+
+function askPriority() {
+    addMessage("🎯 Ağırlıklı çalışmak istediğin bir ders var mı? (Örn: Matematik)", "bot-message");
+    chatState = "askPriority";
+    document.getElementById('user-input').onkeypress = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendPriority();
+        }
+    };
+    document.querySelector('button').onclick = sendPriority;
+}
+
+function sendPriority() {
+    const input = document.getElementById("user-input");
+    const priorityLesson = input.value.trim();
+    if (!priorityLesson) return;
+
+    addMessage(priorityLesson, "user-message");
+    input.value = "";
+
+    uploadAll(priorityLesson);
+}
+
+async function uploadAll(priorityLesson) {
+    const formData = new FormData();
+    for (let file of filesToUpload) {
+        formData.append('file', file);
+    }
+    formData.append('priority', priorityLesson);
+
+    const response = await fetch('/', {
+        method: 'POST',
+        body: formData
+    });
+
+    const data = await response.json();
+    if (data.calisma_programi) {
+        showPlan(data.calisma_programi);
+    } else {
+        addMessage("⚠️ Çalışma planı oluşturulamadı.", "bot-message");
+    }
+}
+
+function showPlan(plan) {
+    let message = "🗓️ Çalışma Planın:\n\n";
+    plan.forEach(item => {
+        message += `📅 ${item.tarih}: ${item.yapilacaklar.join(", ")}\n`;
+    });
+    addMessage(message, "bot-message");
+}
+</script>
+
+</body>
+</html>
