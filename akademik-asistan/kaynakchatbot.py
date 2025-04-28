@@ -8,13 +8,20 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from openai import OpenAI
 
+# 🔐 Ortam değişkenlerini yükle
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
+# 🚀 Flask başlat
 app = Flask(__name__)
 CORS(app)
 
+# 📚 Çok konulu cache'ler
+book_cache = {}
+article_cache = {}
+
+# 🧠 Kullanıcı mesajını analiz et
 def analyze_user_message(message):
     prompt = f"""
 Kullanıcının yazdığı cümlede ne tür kaynak istediğini, konusunu ve seviyesini çıkar.
@@ -40,14 +47,20 @@ Seviye: başlangıç/orta/ileri
     result = {"type": "kitap", "topic": "bilinmiyor", "level": "orta"}
     for line in lines:
         if "Tür:" in line:
-            result["type"] = line.split(":", 1)[1].strip()
+            type_value = line.split(":", 1)[1].strip().lower()
+            if type_value in ["kitap", "makale"]:
+                result["type"] = type_value
+            else:
+                print(f"⚠️ Uyarı: Geçersiz tür bulundu: {type_value}. Kitap olarak varsayılıyor.")
+                result["type"] = "kitap"
         elif "Konu:" in line:
             result["topic"] = line.split(":", 1)[1].strip()
         elif "Seviye:" in line:
             result["level"] = line.split(":", 1)[1].strip()
     return result
 
-def get_book_titles_from_gpt(topic, level, limit=5):
+# 📚 GPT'den kitap adları al (limit=10)
+def get_book_titles_from_gpt(topic, level, limit=10):
     prompt = f"""
 Kullanıcı senden '{topic}' konusunda {level} seviyesinde akademik kitaplar istiyor.
 Sadece {limit} kitap öner. Her biri şu formatta olsun:
@@ -60,7 +73,7 @@ Sadece {limit} kitap öner. Her biri şu formatta olsun:
             {"role": "user", "content": prompt}
         ],
         temperature=0.5,
-        max_tokens=300
+        max_tokens=500
     )
     content = response.choices[0].message.content.strip()
     titles = []
@@ -74,6 +87,7 @@ Sadece {limit} kitap öner. Her biri şu formatta olsun:
             break
     return titles
 
+# 📚 Google Books'tan bilgi çek
 def fetch_google_books_info(title, author):
     query = f"intitle:{title} inauthor:{author}"
     url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=1"
@@ -92,7 +106,8 @@ def fetch_google_books_info(title, author):
         "publishedDate": info.get("publishedDate", "Tarih yok")
     }
 
-def get_articles_from_semantic_scholar(topic, limit=5, retries=3):
+# 📚 Semantic Scholar'dan makale bilgisi çek
+def get_articles_from_semantic_scholar(topic, limit=10, retries=3):
     base_url = "https://api.semanticscholar.org/graph/v1/paper/search"
     fields = "title,authors,year,url,abstract,venue"
     params = {"query": topic, "limit": limit, "fields": fields}
@@ -119,8 +134,18 @@ def get_articles_from_semantic_scholar(topic, limit=5, retries=3):
         return articles[:limit]
     return []
 
+# 🧠 Açıklamadan seviye tahmini (GPT + Kelime kontrolü)
 def guess_level_with_gpt(text):
-    prompt = f"Aşağıdaki açıklamaya göre bu içeriğin akademik seviyesini belirt:\nSeçenekler: Başlangıç, Orta, İleri.\nSadece bir kelimeyle cevap ver.\n\n{text}"
+    beginner_keywords = ["introductory", "for beginners", "no prior knowledge", "elementary", "easy to understand"]
+    advanced_keywords = ["advanced", "in-depth", "for experienced", "for advanced readers", "comprehensive study"]
+
+    prompt = f"""
+Aşağıdaki açıklamaya göre bu içeriğin akademik seviyesini belirt:
+Seçenekler: Başlangıç, Orta, İleri.
+Sadece bir kelimeyle cevap ver.
+
+{text}
+"""
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -130,8 +155,23 @@ def guess_level_with_gpt(text):
         temperature=0,
         max_tokens=10
     )
-    return response.choices[0].message.content.strip()
+    gpt_guess = response.choices[0].message.content.strip().lower()
 
+    text_lower = text.lower()
+
+    for word in beginner_keywords:
+        if word in text_lower:
+            print(f"🔍 Anahtar kelime bulundu (başlangıç): {word}")
+            return "başlangıç"
+
+    for word in advanced_keywords:
+        if word in text_lower:
+            print(f"🔍 Anahtar kelime bulundu (ileri): {word}")
+            return "ileri"
+
+    return gpt_guess
+
+# 📡 Ana chat endpoint
 @app.route("/chat", methods=["POST"])
 def chat():
     user_message = request.json.get("message", "")
@@ -140,45 +180,91 @@ def chat():
 
     analysis = analyze_user_message(user_message)
     topic = analysis["topic"]
-    level = analysis["level"]
+    level = analysis["level"].lower()
     item_type = analysis["type"]
 
+    print(f"📥 Gelen mesaj: {user_message}")
+    print(f"🧠 Analiz sonucu: Tür={item_type}, Konu={topic}, Seviye={level}")
+
     if item_type == "kitap":
-        titles = get_book_titles_from_gpt(topic, level, limit=5)
-        results = []
-        for title, author in titles:
-            info = fetch_google_books_info(title, author)
-            if info:
-                level_guess = guess_level_with_gpt(info["description"])
-                print(f"📘 GPT kitap seviyesi: {level_guess} (Kullanıcı seviyesi: {level})")
-                results.append(
-                    f"📘 {info['title']} – {info['authors']} ({info['publishedDate']})\n"
-                    f"🧠 Seviye: {level_guess}\n"
-                    f"📝 {info['description'][:150]}...\n"
-                )
-        if not results:
-            return jsonify({"reply": "Kitap bulunamadı."})
-        return jsonify({"reply": "\n\n".join(results)})
+        cache = book_cache
+        if topic not in cache:
+            cache[topic] = []
+
+        books = cache[topic]
+        filtered_books = [book for book in books if book["level"] == level]
+
+        if not filtered_books:
+            print(f"🚨 Kitap bulunamadı, yeni kitaplar çekiliyor: {topic}")
+            titles = get_book_titles_from_gpt(topic, level, limit=10)
+            for title, author in titles:
+                info = fetch_google_books_info(title, author)
+                if info:
+                    level_guess = guess_level_with_gpt(info["description"]).lower()
+                    books.append({
+                        "title": info["title"],
+                        "authors": info["authors"],
+                        "description": info["description"],
+                        "publishedDate": info["publishedDate"],
+                        "link": info.get("infoLink", "#"),  # 📎 Link bilgisini de ekliyoruz!
+                        "level": level_guess
+                    })
+            cache[topic] = books
+            filtered_books = [book for book in books if book["level"] == level]
+
+        if not filtered_books and level == "ileri":
+            print("🔄 İleri seviye bulunamadı, orta seviye aranıyor...")
+            filtered_books = [book for book in books if book["level"] == "orta"]
+
+        if not filtered_books:
+            return jsonify({"reply": f"'{topic}' konusunda uygun seviyede kitap bulunamadı."})
+
+        reply = f"🔎 İşte '{topic}' için {level} seviyesinde bulduğum kitaplar:\n\n"
+        for idx, book in enumerate(filtered_books, 1):
+            reply += (
+                f"{idx}. 📘 <a href=\"{book['link']}\" target=\"_blank\">{book['title']}</a> – {book['authors']} ({book['publishedDate']})\n"
+                f"📝 {book['description'][:150]}...\n\n"
+            )
+        return jsonify({"reply": reply})
 
     elif item_type == "makale":
-        articles = get_articles_from_semantic_scholar(topic, limit=5)
-        results = []
-        for article in articles:
-            level_guess = guess_level_with_gpt(article["abstract"])
-            print(f"📄 GPT makale seviyesi: {level_guess} (Kullanıcı seviyesi: {level})")
-            results.append(
-                f"📄 {article['title']} – {article['authors']} ({article['year']})\n"
-                f"📚 {article['venue']}\n"
-                f"🔗 {article['url']}\n"
-                f"🧠 Seviye: {level_guess}\n"
-                f"📝 {article['abstract'][:200]}...\n"
-            )
-        if not results:
-            return jsonify({"reply": "Makale bulunamadı."})
-        return jsonify({"reply": "\n\n".join(results)})
+        cache = article_cache
+        if topic not in cache:
+            cache[topic] = []
+
+        articles = cache[topic]
+        filtered_articles = [art for art in articles if guess_level_with_gpt(art["abstract"]) == level]
+
+        if not filtered_articles:
+            print(f"🚨 Makale bulunamadı, yeni makaleler çekiliyor: {topic}")
+            new_articles = get_articles_from_semantic_scholar(topic, limit=10)
+            for art in new_articles:
+                level_guess = guess_level_with_gpt(art["abstract"]).lower()
+                art["level"] = level_guess
+                articles.append(art)
+            cache[topic] = articles
+            filtered_articles = [art for art in articles if art["level"] == level]
+
+        if not filtered_articles and level == "ileri":
+            print("🔄 İleri seviye makale bulunamadı, orta seviye aranıyor...")
+            filtered_articles = [art for art in articles if art["level"] == "orta"]
+
+        if not filtered_articles:
+            return jsonify({"reply": f"'{topic}' konusunda uygun seviyede makale bulunamadı."})
+
+        reply = f"🔎 İşte '{topic}' için {level} seviyesinde bulduğum makaleler:\n\n"
+        for idx, art in enumerate(filtered_articles, 1):
+            reply += (
+                f"{idx}. 📄 {art['title']} – {art['authors']} ({art['year']})\n"
+                f"📚 {art['venue']}\n"
+                f"🔗 <a href=\"{art['url']}\" target=\"_blank\">Makale Linki</a>\n"
+                f"📝 {art['abstract'][:200]}...\n\n"
+    )
+        return jsonify({"reply": reply})
 
     else:
-        return jsonify({"reply": "Şu anda yalnızca kitap ve makale önerisi yapılabilmektedir."})
+        return jsonify({"reply": "Şu anda sadece kitap ve makale önerisi yapılabilmektedir."})
 
+# 🚀 Server'ı çalıştır
 if __name__ == "__main__":
     app.run(debug=True)
