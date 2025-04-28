@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Üniversite Tercih Asistanı</title>
+  <style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px;
+    background-color: #ece5dd;
+  }
+
+  #chatContainer {
+    width: 100%;
+    max-width: 500px;
+  }
+
+  #chat {
+    border: none;
+    padding: 15px;
+    height: 450px;
+    overflow-y: auto;
+    background-color: #ffffff;
+    margin-bottom: 10px;
+    border-radius: 16px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #inputArea {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+  }
+
+  input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 14px;
+  }
+
+  button {
+    padding: 10px 16px;
+    border: none;
+    background-color: #25d366;
+    color: white;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #20c05c;
+  }
+
+  .bot, .user {
+    max-width: 70%;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    line-height: 1.3;
+    word-wrap: break-word;
+  }
+
+  .bot {
+    background-color: #dcf8c6;
+    align-self: flex-start;
+    color: #000;
+  }
+
+  .user {
+    background-color: #34b7f1;
+    color: white;
+    align-self: flex-end;
+  }
+
+  a {
+    color: #075e54;
+    text-decoration: underline;
+  }
+
+  a:hover {
+    color: #128c7e;
+  }
+</style>
+</head>
+
+<body>
+
+<div id="chatContainer">
+  <h1 style="text-align: center;">🎓 Üniversite Tercih Asistanı</h1>
+
+  <div id="chat">
+    <div class="bot">🎓 Hoş geldin!<br>🤖 Sohbete başlayabilirsin. (Çıkmak için: q / Sıfırlamak için: reset)</div>
+  </div>
+
+  <div id="inputArea">
+    <input type="text" id="userInput" placeholder="Mesajını yaz..." onkeypress="handleKeyPress(event)">
+    <button onclick="sendUserMessage()">Gönder</button>
+  </div>
+</div>
+
+<script>
+let state = "start";
+let session = {};
+
+// Harf harf yazdırma fonksiyonu
+function addMessage(text, sender, typing = false) {
+  const chat = document.getElementById("chat");
+  const div = document.createElement("div");
+  div.className = sender;
+  chat.appendChild(div);
+
+  if (typing && sender === "bot") {
+    let index = 0;
+    function type() {
+      if (index < text.length) {
+        div.innerHTML += text[index];
+        index++;
+        setTimeout(type, 20);
+        chat.scrollTop = chat.scrollHeight;
+      }
+    }
+    type();
+  } else {
+    div.innerHTML = text;
+    chat.scrollTop = chat.scrollHeight;
+  }
+}
+
+function handleKeyPress(event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    sendUserMessage();
+  }
+}
+
+function sendUserMessage() {
+  const input = document.getElementById("userInput");
+  const message = input.value.trim();
+  if (!message) return;
+
+  addMessage(message, "user", false);
+  input.value = "";
+  handleConversation(message.toLowerCase());
+}
+
+function handleConversation(message) {
+  if (message === "q" || message === "quit") {
+    addMessage("👋 Görüşmek üzere!", "bot", true);
+    state = "end";
+    return;
+  }
+
+  if (message === "reset") {
+    session = {};
+    addMessage("🔄 Hafıza sıfırlandı! Hadi baştan başlayalım. ✨", "bot", true);
+    state = "start";
+    return;
+  }
+
+  if (state === "start") {
+    addMessage("🎯 Merhaba! Üniversite tercihlerinde yardımcı olmamı ister misin?", "bot", true);
+    state = "awaiting_permission";
+    return;
+  }
+
+  if (state === "awaiting_permission") {
+    if (message.includes("evet")) {
+      addMessage("📚 Hadi başlayalım! Öncelikle sınava girdin mi? (Evet / Hayır)", "bot", true);
+      state = "awaiting_exam";
+    } else if (message.includes("hayır")) {
+      addMessage("👋 Pekala, sana şimdilik veda ediyorum. İyi günler dilerim!", "bot", true);
+      state = "end";
+    } else {
+      addMessage("❓ Üniversite tercihi yapmak ister misin? (Evet / Hayır)", "bot", true);
+    }
+    return;
+  }
+
+  if (state === "awaiting_exam") {
+    if (message.includes("evet")) {
+      session["sinava_girdi"] = true;
+      addMessage("📈 Harika! Şimdi hangi puan türüyle sınava girdiğini öğrenelim. (SAY, EA, SÖZ, DİL)", "bot", true);
+      state = "awaiting_score_type";
+    } else if (message.includes("hayır")) {
+      session["sinava_girdi"] = false;
+      addMessage("🧠 O zaman hangi alanlara ilgin olduğunu öğrenelim. (Örn: Bilgisayar, Hukuk, Öğretmenlik)", "bot", true);
+      state = "awaiting_interest";
+    } else {
+      addMessage("❓ Sınava girdin mi? Lütfen sadece 'Evet' veya 'Hayır' yaz.", "bot", true);
+    }
+    return;
+  }
+
+  if (state === "awaiting_score_type") {
+    session["puan_turu"] = message.toUpperCase();
+    addMessage("🏅 Şimdi başarı sıranı öğrenelim. (Örn: 25000 gibi)", "bot", true);
+    state = "awaiting_rank";
+    return;
+  }
+
+  if (state === "awaiting_rank") {
+    session["siralama"] = message;
+    addMessage("🧠 Peki, hangi bölümlere ilgin var? (Örn: Bilgisayar, Hukuk, Öğretmenlik)", "bot", true);
+    state = "awaiting_interest";
+    return;
+  }
+
+  if (state === "awaiting_interest") {
+    session["ilgi_alani"] = message;
+    addMessage("📍 Tercih etmek istediğin şehir(ler) var mı? (Örn: İstanbul, Ankara veya 'yok')", "bot", true);
+    state = "awaiting_city";
+    return;
+  }
+
+  if (state === "awaiting_city") {
+    session["sehirler"] = message.toLowerCase() === "yok" ? "yok" : message.split(",");
+    sendSessionToBackend();
+    state = "awaiting_university_detail";
+    return;
+  }
+
+  if (state === "awaiting_university_detail") {
+    findUniversityDetails(message);
+    return;
+  }
+}
+
+async function sendSessionToBackend() {
+  addMessage("🔍 Sana en uygun bölümleri arıyorum, bir saniye... 🚀", "bot", true);
+
+  const toSend = {
+    message: JSON.stringify({
+      sınava_girdi: session.sinava_girdi,
+      puan_turu: session.puan_turu,
+      ilgi_alani: session.ilgi_alani,
+      siralama: session.siralama,
+      sehirler: session.sehirler
+    })
+  };
+
+  try {
+    const response = await fetch("http://127.0.0.1:5000/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(toSend)
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      addMessage(`⚠️ Hata: ${data.error}`, "bot", true);
+      return;
+    }
+
+    if (data.tercihler.length === 0) {
+      addMessage("😔 Üzgünüm, sana uygun bölüm bulamadım.", "bot", true);
+    } else {
+      data.tercihler.forEach(item => {
+        addMessage(`
+          <b>🎓 ${item.üniversite}</b><br>
+          📚 ${item.bölüm} (${item.şehir})<br>
+          🎯 Sıralama: ${item.sıralama} | 📊 Puan: ${item.puan} | 🎓 Burs: ${item.burs}<br>
+          ${item.video_link ? `🎥 <a href="${item.video_link}" target="_blank">Tanıtım Videosu</a> | ` : ""}
+          🌐 <a href="${item.web_site}" target="_blank">Web Sitesi</a>
+        `, "bot", false);
+      });
+    }
+
+    addMessage("💬 Detaylı bilgi almak istediğin bir üniversite ismi yazabilir misin?", "bot", true);
+  } catch (error) {
+    addMessage(`⚠️ İstek gönderilemedi: ${error.message}`, "bot", true);
+  }
+}
+
+async function findUniversityDetails(universityName) {
+  try {
+    const response = await fetch("http://127.0.0.1:5000/university-detail", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: universityName })
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      addMessage(`❗ ${data.error}`, "bot", true);
+      return;
+    }
+
+    if (data.universiteler) {
+      data.universiteler.forEach(u => {
+        addMessage(`
+          <div class="card">
+            📚 <b>${u.name}</b><br>
+            📍 Adres: ${u.address}<br>
+            📞 Telefon: ${u.phone}<br>
+            📠 Fax: ${u.fax}<br>
+            ✉️ E-posta: ${u.email}<br>
+            🌐 <a class="button-link" href="${u.web}" target="_blank">Web Sitesi</a><br>
+            👨‍🎓 Rektör: ${u.warden}
+          </div>
+        `, "bot", false);
+      });
+    } else {
+      addMessage(`
+        <div class="card">
+          📚 <b>${data.name}</b><br>
+          📍 Adres: ${data.address}<br>
+          📞 Telefon: ${data.phone}<br>
+          📠 Fax: ${data.fax}<br>
+          ✉️ E-posta: ${data.email}<br>
+          🌐 <a class="button-link" href="${data.web}" target="_blank">Web Sitesi</a><br>
+          👨‍🎓 Rektör: ${data.warden}
+        </div>
+      `, "bot", false);
+    }
+  } catch (error) {
+    addMessage(`⚠️ Detaylar getirilemedi: ${error.message}`, "bot", true);
+  }
+}
+</script>
+
+</body>
+</html>

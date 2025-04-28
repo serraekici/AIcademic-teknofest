@@ -1,3 +1,4 @@
+.env
 # Python cache dosyaları
 __pycache__/
 *.pyc
