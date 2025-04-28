@@ -4,13 +4,17 @@ import unicodedata
 import re
 from app.openai_chat import analyze_user_message
 from app.yok import filtrele_json_programlar
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Verileri yükle
-with open("uni_video_links.json", "r", encoding="utf-8") as f:
+with open(os.path.join(BASE_DIR, "uni_video_links.json"), "r", encoding="utf-8") as f:
     uni_video_links = json.load(f)
 
-with open("universities.json", "r", encoding="utf-8") as f:
+with open(os.path.join(BASE_DIR,  "universities.json"), "r", encoding="utf-8") as f:
     universities_data = json.load(f)
+
 
 def normalize(text):
     text = unicodedata.normalize("NFKD", text).encode("ASCII", "ignore").decode()
