@@ -5,6 +5,7 @@ __pycache__/
 
 # Sanal ortam
 .venv/
+akademik-asistan/.env/
 
 # Log dosyaları
 *.log
