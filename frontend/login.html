@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Login - Student Hub</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     body { font-family: Arial; max-width: 400px; margin: 40px auto; }
     input, button { width: 100%; padding: 10px; margin: 8px 0; }
@@ -19,6 +20,25 @@
   </form>
   <div id="response-message"></div>
 
+  <div class="container">
+    <div class="left">
+      <h1>Araştır, Öğren, Çalışmaya Başla!</h1>
+      <p>Sana özel çalışma programına göz at!</p>
+      <img src="study.svg" alt="Study Illustration" class="study-image">
+      <p class="caption">Ders kaynaklarını incele!</p>
+    </div>
+
+    
+    <div class="right">
+      <h2>Get Started for Free</h2>
+      <p class="note">Öğrenci e-postanla kayıt olarak Premium özelliklerini keşfet! </p>
+
+      <form id="signup-form">
+        <button type="submit">Sign up</button>
+      </form>
+      
+     
+      
   <script>
     const form = document.getElementById("login-form");
 
@@ -36,6 +56,11 @@
         body: JSON.stringify({ username, password })
       });
 
+      const form = document.getElementById("signup-form");
+      form.addEventListener("submit", function(e) {
+        e.preventDefault();
+        window.location.href="index1.html";
+      });
       const result = await response.json();
       const messageBox = document.getElementById("response-message");
 
