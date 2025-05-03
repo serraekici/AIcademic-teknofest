@@ -32,7 +32,16 @@ function Chat() {
             key={i}
             className={`text-sm ${msg.sender === "user" ? "text-blue-700 text-right" : "text-green-700 text-left"}`}
           >
-            <strong>{msg.sender === "user" ? "Sen:" : "Asistan:"}</strong> {msg.text}
+            {msg.sender === "user" ? (
+              <>
+                <strong>Sen:</strong> {msg.text}
+              </>
+            ) : (
+              <>
+                <strong>Asistan:</strong>{" "}
+                <span dangerouslySetInnerHTML={{ __html: msg.text }} />
+              </>
+            )}
           </div>
         ))}
       </div>
