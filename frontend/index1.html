@@ -2,38 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Student Hub</title>
+  <title>Kayıt Ol - Student Hub</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
     <div class="left">
-      <h1>Explore, Learn, Connect</h1>
-      <p>Discover podcasts for every study mood!</p>
+      <h2>Araştır, Öğren, Çalışmaya Başla!</h2>
+      <p>Sana özel çalışma programına göz at!</p>
       <img src="study.svg" alt="Study Illustration" class="study-image">
-      <p class="caption">Enhance your study sessions with podcasts!</p>
+      <p class="caption">Ders kaynaklarını incele!</p>
     </div>
 
     <div class="right">
-      <h2>Get Started for Free</h2>
-      <p class="note">Unlock premium features with a student email.</p>
-
-      <!-- ✅ Form şık tasarımın içine alındı -->
+      <h2>Kayıt Ol</h2>
       <form id="register-form">
-        <input type="text" id="username" placeholder="Your full name" required>
-        <input type="email" id="email" placeholder="Your university email" required>
-        <input type="password" id="password" placeholder="Create a password" required>
-        <input type="password" id="password2" placeholder="Confirm password" required>
-        <button type="submit">Sign up</button>
+        <input type="text" id="username" placeholder="İsminiz ve Soyisminiz" required>
+        <input type="email" id="email" placeholder="E-Posta" required>
+        <input type="password" id="password" placeholder="Şifre Oluşturun" required>
+        <input type="password" id="password2" placeholder="Şifrenizi Onaylayın" required>
+        <button type="submit">Hemen Başla!</button>
       </form>
-
       <div id="response-message" style="margin-top: 10px;"></div>
 
-      <p class="or">or sign up with</p>
-      <div class="social-buttons">
-        <button class="google">Google</button>
-        <button class="facebook">Facebook</button>
-      </div>
+      <h2>Zaten bir hesabın var mı?</h2>
+      <p class="note">Hemen giriş yap ve derslerine başla!</p>
+      <button id="signin-btn" class="main-button">Giriş Yap</button>
     </div>
   </div>
 
@@ -72,6 +66,11 @@
         messageBox.innerText = JSON.stringify(result, null, 2);
         messageBox.style.color = "red";
       }
+    });
+
+    const signinBtn = document.getElementById("signin-btn");
+    signinBtn.addEventListener("click", () => {
+      window.location.href = "login.html";
     });
   </script>
 </body>

@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request, redirect
 import os, json
 from utils.ocr import extract_text_from_image
@@ -8,6 +9,7 @@ from utils.text_cleaner import clean_exam_text
 
 
 load_dotenv()
+
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
@@ -60,6 +62,7 @@ def today():
     plan_text = data.get("plan_text", "")
     suggestion = what_to_study_today(plan_text)
     return f"<h2>📅 Bugünlük Öneri:</h2><pre>{suggestion}</pre><br><a href='/plan'>🔙 Plana Dön</a>"
+
 
 if __name__ == '__main__':
     app.run(debug=True)
