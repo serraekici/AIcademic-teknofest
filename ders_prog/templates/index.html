@@ -2,14 +2,13 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Ders Ayıklayıcı</title>
+    <title>Ders Görsel Yükle</title>
 </head>
 <body>
-    <h1>Ders Ayıklama Aracı</h1>
-    <form action="/dersleri-ayikla" method="post" enctype="multipart/form-data">
-        <label>Dosya Yükle (.jpg, .docx, .txt):</label><br>
-        <input type="file" name="file" required><br><br>
-        <button type="submit">Gönder</button>
+    <h1>Ders Programı Görseli Yükle (.jpg, .png)</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*" required>
+        <button type="submit">Yükle ve Tara</button>
     </form>
 </body>
 </html>
