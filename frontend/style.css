@@ -11,20 +11,32 @@ git body {
   
   .container {
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     max-width: 1000px;
     width: 100%;
+    margin: auto;
+    padding: 100px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 30px;
+
   }
   
   .left, .right {
     flex: 1;
     padding: 40px;
+    
   }
   
   .left {
     background-color: #f9f9f9;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
+  
   
   .left img {
     width: 80%;
@@ -91,4 +103,20 @@ git body {
   .social-buttons button:hover {
     background-color: #222;
   }
+
+  .main-button {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 15px 50px;
+    border-radius: 10px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: 0.3s ease;
+  }
+  
+  .main-button:hover {
+    background-color: #333;
+  }
+  
   
