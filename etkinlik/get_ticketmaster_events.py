@@ -7,7 +7,7 @@ load_dotenv()
 API_KEY = os.getenv("TICKETMASTER_API_KEY")
 
 if not API_KEY:
-    print("❌ .env dosyasında TICKETMASTER_API_KEY bulunamadı.")
+    print("❌ .env dosyasında TICKETMASTER_API_KEY bulunamadı!")
     exit()
 
 base_url = "https://app.ticketmaster.com/discovery/v2/events.json"
