@@ -3,7 +3,7 @@ import json
 import unicodedata
 import re
 
-# ✅ normalize() fonksiyonu – Türkçe harf düzeltmeli
+# ✅ Türkçe karakter temizleyici
 def normalize(text):
     text = unicodedata.normalize("NFKD", text).encode("ASCII", "ignore").decode()
     text = text.replace("ı", "i")
@@ -12,7 +12,7 @@ def normalize(text):
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
-# ✅ filtrele_json_programlar() fonksiyonu – çoklu ilgi alanı + başarı sırası + şehir + öğretmenlik kökü + boş sıralama kontrolü
+# ✅ Bölüm filtreleme fonksiyonu
 def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", siralama_kullanici: float = None, sehirler: list = None, sinava_girdi: bool = True):
     data_path = os.path.join(os.path.dirname(__file__), 'data', 'data.json')
 
@@ -22,17 +22,27 @@ def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", sirala
     if not ilgi_alani:
         return []
 
-    # ✅ ilgi alanı çoklu bölme (ve, and, virgül)
+    # Çoklu ilgi alanı ayırma (ve, and, virgül ile)
     ilgi_raw = ilgi_alani.lower().replace(" ve ", ",").replace(" and ", ",")
     ilgi_kelimeler = [normalize(k.strip()) for k in ilgi_raw.split(",") if k.strip()]
     
+    # Şehirler normalize ediliyor
     sehirler = [normalize(s) for s in sehirler] if sehirler else None
     uygunlar = []
     puan_turleri = ["say", "ea", "söz", "dil"] if puan_turu is None else [puan_turu.lower()]
 
+    # Özel eşleşme listesi – yazılım gibi kelimeler daha geniş aranır
+    ozel_eslesmeler = {
+        "YAZILIM": ["YAZILIM", "BILGISAYAR", "YAZILIM MUHENDISLIGI", "BILGISAYAR MUHENDISLIGI"],
+        "BILGISAYAR": ["BILGISAYAR", "YAZILIM", "BILGISAYAR MUHENDISLIGI", "YAZILIM MUHENDISLIGI"]
+    }
+
     for uni in data.values():
-        if sehirler and normalize(uni["sehir"]) not in sehirler:
-            continue
+        # ✅ Şehir filtresi daha esnek: İSTANBUL (ÜSKÜDAR) gibi varyasyonlar eşleşir
+        if sehirler:
+            uni_sehir_norm = normalize(uni["sehir"])
+            if not any(sehir in uni_sehir_norm for sehir in sehirler):
+                continue
 
         for tur in puan_turleri:
             bolumler = uni.get(tur, [])
@@ -45,6 +55,13 @@ def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", sirala
                         if ilgi == "OGRETMENLIK":
                             if "OGRETMEN" in bolum_adi:
                                 eşleşti = True
+                                break
+                        elif ilgi in ozel_eslesmeler:
+                            for anahtar in ozel_eslesmeler[ilgi]:
+                                if anahtar in bolum_adi:
+                                    eşleşti = True
+                                    break
+                            if eşleşti:
                                 break
                         else:
                             if (f" {ilgi} " in f" {bolum_adi} " or bolum_adi.startswith(ilgi + " ") or bolum_adi.endswith(" " + ilgi) or bolum_adi == ilgi):
@@ -80,7 +97,6 @@ def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", sirala
                         "şehir": uni["sehir"]
                     })
 
-
-    # 🔥 En iyi bölümler (küçük sıralama) en üstte olacak şekilde sırala
+    # ✅ En iyi sıralamaya göre sırala ve 24 tane döndür
     uygunlar.sort(key=lambda x: x["siralama_float"] if x["siralama_float"] is not None else float("inf"))
     return uygunlar[:24]
