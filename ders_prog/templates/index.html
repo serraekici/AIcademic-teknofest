@@ -1,14 +1,21 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Ders Görsel Yükle</title>
+  <title>Ders Planlayıcı</title>
 </head>
 <body>
-    <h1>Ders Programı Görseli Yükle (.jpg, .png)</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="image" accept="image/*" required>
-        <button type="submit">Yükle ve Tara</button>
-    </form>
+  <h2>📸 Sınav Programı Yükle</h2>
+  <form method="post" enctype="multipart/form-data">
+    <label>Fotoğraf:</label><br>
+    <input type="file" name="image" required><br><br>
+
+    <label>Başlangıç Tarihi:</label><br>
+    <input type="text" name="start_date" placeholder="18 Mart" required><br><br>
+
+    <label>Bitiş Tarihi:</label><br>
+    <input type="text" name="end_date" placeholder="5 Nisan" required><br><br>
+
+    <button type="submit">📅 Planı Oluştur</button>
+  </form>
 </body>
 </html>

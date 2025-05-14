@@ -1,15 +1,11 @@
-
 from flask import Flask, render_template, request, redirect
 import os, json
+from dotenv import load_dotenv
 from utils.ocr import extract_text_from_image
 from utils.filename_cleaner import normalize_filename
 from utils.gpt_plan import generate_smart_plan
-from dotenv import load_dotenv
-from utils.text_cleaner import clean_exam_text
-
 
 load_dotenv()
-
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
@@ -30,18 +26,20 @@ def load_session():
 def index():
     if request.method == 'POST':
         file = request.files['image']
+        start_date = request.form.get('start_date', '18 Mart')
+        end_date = request.form.get('end_date', '5 Nisan')
+
         filename = normalize_filename(file.filename)
         filepath = os.path.join(UPLOAD_FOLDER, filename)
         file.save(filepath)
 
         ocr_text = extract_text_from_image(filepath)
         print("OCR ÇIKTISI:\n", ocr_text)
-        exam_text = clean_exam_text(ocr_text)
 
-        smart_plan = generate_smart_plan(exam_text, start_date="18 Mart")
+        smart_plan = generate_smart_plan(ocr_text, start_date, end_date)
+
         save_session({
             "ocr_text": ocr_text,
-            "exam_text": exam_text,
             "plan_text": smart_plan
         })
 
@@ -52,17 +50,7 @@ def index():
 @app.route('/plan')
 def plan():
     data = load_session()
-    plan_text = data.get("plan_text", "Plan oluşturulamadı.")
-    return render_template("plan.html", plan=plan_text)
-
-@app.route('/today')
-def today():
-    from utils.gpt_plan import what_to_study_today
-    data = load_session()
-    plan_text = data.get("plan_text", "")
-    suggestion = what_to_study_today(plan_text)
-    return f"<h2>📅 Bugünlük Öneri:</h2><pre>{suggestion}</pre><br><a href='/plan'>🔙 Plana Dön</a>"
-
+    return render_template("plan.html", plan=data.get("plan_text", "Plan oluşturulamadı."))
 
 if __name__ == '__main__':
     app.run(debug=True)
