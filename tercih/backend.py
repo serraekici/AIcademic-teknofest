@@ -93,9 +93,14 @@ def analyze_and_recommend():
             ""
         )
         web_link = next(
-            (u['web'] for u in universities_data if normalize(u.get("name", "")) in uni_adi_norm or uni_adi_norm in normalize(u.get("name", ""))),
+            (
+                u['web'] for u in universities_data
+                if (normalize(u.get("name", "")) in uni_adi_norm or uni_adi_norm in normalize(u.get("name", "")))
+                and normalize(t["şehir"]) in normalize(u.get("address", ""))
+            ),
             ""
         )
+
         if web_link:
             web_link = make_clickable(web_link)
 
