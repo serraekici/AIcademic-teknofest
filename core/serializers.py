@@ -53,3 +53,16 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = '__all__'
+
+from rest_framework import serializers
+from .models import ExamSchedule, LessonSchedule
+
+class ExamScheduleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExamSchedule
+        fields = '__all__'  # veya ['user', 'course_name', 'exam_date', 'exam_time', 'location']
+
+class LessonScheduleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LessonSchedule
+        fields = '__all__'
