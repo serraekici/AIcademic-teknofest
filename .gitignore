@@ -1,4 +1,9 @@
 .env
+ticketmaster_data.json
+data.json
+uni_video_links.json
+universities.json
+
 # Python cache dosyaları
 __pycache__/
 *.pyc
