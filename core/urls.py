@@ -9,10 +9,13 @@ from .views import protected_view
 from .views import profile_view
 from .views import schedule_view
 from .views import upload_exam_file
+from .views import EventViewSet
+
 router = DefaultRouter()
 router.register(r'students', StudentViewSet)
 router.register(r'courses', CourseViewSet)  # 👈 bu satır kesinlikle olmalı
 router.register(r'users', UserListViewSet)
+router.register(r'events', EventViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -24,6 +27,7 @@ urlpatterns = [
     path('profile/', profile_view, name='profile'),
     path('schedule/', schedule_view, name='schedule'),
     path('upload-exam/', upload_exam_file, name='upload_exam'),
+    path('', include(router.urls)),
 ]
 
 

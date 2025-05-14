@@ -25,3 +25,14 @@ class Course(models.Model):
 from django.contrib.auth.models import User  # 👈 bunu en üste ekle
 
 
+from django.db import models
+
+class Event(models.Model):
+    name = models.CharField(max_length=200)
+    date = models.DateField()
+    location = models.CharField(max_length=200)
+    is_online = models.BooleanField(default=False)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name

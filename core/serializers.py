@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Student
 from .models import Course
 from django.contrib.auth.models import User
-from rest_framework import serializers
+from .models import Event
 
 
 
@@ -48,3 +48,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'date_joined']
+
+class EventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = '__all__'

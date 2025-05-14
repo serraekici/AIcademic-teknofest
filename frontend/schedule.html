@@ -67,7 +67,10 @@
 </head>
 <body>
   <div class="container">
-    <h2>📘 Sınav Takvimi</h2>
+    <a href="schedule.html">
+    </a>
+    
+
     <table id="schedule-table">
       <thead>
         <tr>
@@ -109,6 +112,11 @@
         alert("Veriler alınamadı. Lütfen giriş yaptığınızdan emin olun.");
         window.location.href = "login.html";
       });
+
+    const scheduleBtn = document.getElementById("schedule-btn");
+    scheduleBtn.addEventListener("click", () => {
+    window.location.href = "schedule.html";
+  });
   </script>
 </body>
 </html>
