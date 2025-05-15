@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Uygulama Ana Sayfa</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f1f1f1;
+    }
+
+    .dashboard {
+      background: white;
+      padding: 50px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    .button-group button {
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 16px;
+      background-color: #000;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .button-group button:hover {
+      background-color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <h1>Ana Ekran</h1>
+    <div class="button-group">
+      <button onclick="alert('Dersler sekmesine gidecek')">Dersler</button>
+      <button onclick="alert('Sınav Takvimi sekmesine gidecek')">Sınav Takvimim</button>
+      <button onclick="alert('Etkinlikler sekmesine gidecek')">Etkinlikler</button>
+      <div id="response-message"></div> 
+    </div>
+  </div>
+</body>
+</html>

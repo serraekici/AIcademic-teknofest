@@ -100,4 +100,24 @@ class UserListViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
 
+from rest_framework import viewsets
+from .models import Event
+from .serializers import EventSerializer
+
+class EventViewSet(viewsets.ModelViewSet):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    
+from .models import ExamSchedule
+from .serializers import ExamScheduleSerializer
+
+class ExamScheduleViewSet(viewsets.ModelViewSet):
+    queryset = ExamSchedule.objects.all()  # ← BUNU EKLE
+    serializer_class = ExamScheduleSerializer
+
+    def get_queryset(self):
+        return ExamSchedule.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 

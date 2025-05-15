@@ -34,43 +34,46 @@
     </div>  
      
       
-  <script>
-    const form = document.getElementById("login-form");
-
-    form.addEventListener("submit", async function (e) {
-      e.preventDefault();
-
-      const username = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
-
-      const response = await fetch("http://127.0.0.1:8000/api/token/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ username, password })
+    <script>
+      const form = document.getElementById("login-form");
+    
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+    
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+    
+        const response = await fetch("http://127.0.0.1:8000/api/token/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ username, password })
+        });
+    
+        const result = await response.json();
+    
+        const messageBox = document.getElementById("response-message");
+    
+        if (response.ok) {
+          localStorage.setItem("access", result.access);
+          localStorage.setItem("refresh", result.refresh);
+    
+          messageBox.innerText = "Giriş başarılı! Yönlendiriliyorsunuz...";
+          messageBox.style.color = "green";
+    
+          setTimeout(() => {
+            window.location.href = "ders_sinav.html";
+          }, 2000);
+        } else {
+          messageBox.innerText = "Giriş başarısız: " + JSON.stringify(result);
+          messageBox.style.color = "red";
+        }
+      }); 
+    
+      const signupBtn = document.getElementById("signup-btn");
+      signupBtn.addEventListener("click", () => {
+        window.location.href = "index1.html";
       });
-
-      const result = await response.json();
-      const messageBox = document.getElementById("response-message");
-
-      if (response.ok) {
-        messageBox.innerText = "Giriş başarılı! Token alındı ✅";
-        messageBox.className = "success";
-
-        // token'ları localStorage'a kaydediyoruz (isteğe bağlı)
-        localStorage.setItem("access", result.access);
-        localStorage.setItem("refresh", result.refresh);
-      } else {
-        messageBox.innerText = "Giriş başarısız: " + JSON.stringify(result);
-        messageBox.className = "error";
-      }
-    });
-
-    const signupBtn = document.getElementById("signup-btn");
-    signupBtn.addEventListener("click", () => {
-      window.location.href = "index1.html";  // yani kayıt sayfası
-    });
-  </script>
-</body>
-</html>
+    </script>
+    

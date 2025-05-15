@@ -25,3 +25,38 @@ class Course(models.Model):
 from django.contrib.auth.models import User  # 👈 bunu en üste ekle
 
 
+from django.db import models
+
+class Event(models.Model):
+    name = models.CharField(max_length=200)
+    date = models.DateField()
+    location = models.CharField(max_length=200)
+    is_online = models.BooleanField(default=False)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name
+
+from django.db import models
+from django.contrib.auth.models import User
+
+
+class ExamSchedule(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  
+    course_name = models.CharField(max_length=100)
+    exam_date = models.DateField()
+    exam_time = models.TimeField()
+    location = models.CharField(max_length=100, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.course_name} ({self.exam_date})"
+
+class LessonSchedule(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    course_name = models.CharField(max_length=100)
+    day_of_week = models.CharField(max_length=10)  # Pazartesi, Salı vb.
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    def __str__(self):
+        return f"{self.course_name} ({self.day_of_week})"
