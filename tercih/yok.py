@@ -49,38 +49,44 @@ def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", sirala
             for bolum in bolumler:
                 bolum_adi = normalize(bolum.get("bolumAdi", ""))
                 
-                # 🔍 İlgi alanı eşleşmesi
-                eşleşti = any(
-                    (
-                        "OGRETMEN" in bolum_adi if ilgi == "OGRETMENLIK" else
-                        any(kelime in bolum_adi for kelime in ozel_eslesmeler.get(ilgi, [ilgi]))
-                    )
-                    for ilgi in ilgi_kelimeler if ilgi
-                )
+                eşleşti = False
+                for ilgi in ilgi_kelimeler:
+                    if ilgi:
+                        if ilgi == "OGRETMENLIK":
+                            if "OGRETMEN" in bolum_adi:
+                                eşleşti = True
+                                break
+                        elif ilgi in ozel_eslesmeler:
+                            for anahtar in ozel_eslesmeler[ilgi]:
+                                if anahtar in bolum_adi:
+                                    eşleşti = True
+                                    break
+                            if eşleşti:
+                                break
+                        else:
+                            if (f" {ilgi} " in f" {bolum_adi} " or bolum_adi.startswith(ilgi + " ") or bolum_adi.endswith(" " + ilgi) or bolum_adi == ilgi):
+                                eşleşti = True
+                                break
 
-                if not eşleşti:
-                    continue
+                if eşleşti:
+                    try:
+                        siralama = float(bolum["siralama"].replace(".", "").replace(",", "."))
+                    except:
+                        siralama = None
 
-                # 🔍 Başarı sırası ve filtre
-                try:
-                    siralama = float(bolum["siralama"].replace(".", "").replace(",", "."))
-                except:
-                    siralama = None
+                    if siralama is None:
+                        continue
 
-                if siralama is None:
-                    continue
+                    if sinava_girdi:
+                        if siralama_kullanici:
+                            alt = siralama_kullanici * 0.8
+                            ust = siralama_kullanici * 1.2
+                            if not (alt <= siralama <= ust):
+                                continue
+                    else:
+                        if siralama > 100000:
+                            continue
 
-                uygun = True
-
-                if sinava_girdi and siralama_kullanici:
-                    alt = siralama_kullanici * 0.8
-                    ust = siralama_kullanici * 1.2
-                    if not (alt <= siralama <= ust):
-                        uygun = False
-                elif not sinava_girdi and siralama > 100000:
-                    uygun = False
-
-                if uygun:
                     uygunlar.append({
                         "üniversite": uni["uniAdi"],
                         "bölüm": bolum["bolumAdi"],
@@ -91,6 +97,6 @@ def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", sirala
                         "şehir": uni["sehir"]
                     })
 
-    # ✅ En iyi sıralamaya göre sırala ve ilk 24 bölümü döndür
+    # ✅ En iyi sıralamaya göre sırala ve 24 tane döndür
     uygunlar.sort(key=lambda x: x["siralama_float"] if x["siralama_float"] is not None else float("inf"))
     return uygunlar[:24]
