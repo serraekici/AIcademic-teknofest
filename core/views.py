@@ -112,7 +112,7 @@ from .models import ExamSchedule
 from .serializers import ExamScheduleSerializer
 
 class ExamScheduleViewSet(viewsets.ModelViewSet):
-    queryset = ExamSchedule.objects.all()  # ← BUNU EKLE
+    queryset = ExamSchedule.objects.all() 
     serializer_class = ExamScheduleSerializer
 
     def get_queryset(self):
