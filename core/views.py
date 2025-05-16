@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 from .models import Course
 from .models import Student
 from .serializers import CourseSerializer
@@ -89,10 +91,28 @@ class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
 
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import status
+from .models import CustomUser
+from .serializers import RegisterSerializer
 
 class RegisterView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
     serializer_class = RegisterSerializer
-    permission_classes = [AllowAny]
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import RegisterSerializer
+
+class RegisterView(APIView):
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'User registered successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserListViewSet(viewsets.ReadOnlyModelViewSet):

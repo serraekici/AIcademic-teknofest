@@ -1,4 +1,9 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+from django.conf import settings
+
+
 
 class Student(models.Model):
     name = models.CharField(max_length=100)
@@ -10,9 +15,6 @@ class Student(models.Model):
     def __str__(self):
         return self.name
 
-
-from django.db import models
-
 class Course(models.Model):
     code = models.CharField(max_length=10)
     name = models.CharField(max_length=100)
@@ -21,11 +23,6 @@ class Course(models.Model):
 
     def __str__(self):
         return f'{self.code} - {self.name}'
-    
-from django.contrib.auth.models import User  # 👈 bunu en üste ekle
-
-
-from django.db import models
 
 class Event(models.Model):
     name = models.CharField(max_length=200)
@@ -37,12 +34,8 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
-from django.db import models
-from django.contrib.auth.models import User
-
-
 class ExamSchedule(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) 
     course_name = models.CharField(max_length=100)
     exam_date = models.DateField()
     exam_time = models.TimeField()
@@ -52,7 +45,7 @@ class ExamSchedule(models.Model):
         return f"{self.user.username} - {self.course_name} ({self.exam_date})"
 
 class LessonSchedule(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     course_name = models.CharField(max_length=100)
     day_of_week = models.CharField(max_length=10)  # Pazartesi, Salı vb.
     start_time = models.TimeField()
@@ -60,3 +53,13 @@ class LessonSchedule(models.Model):
 
     def __str__(self):
         return f"{self.course_name} ({self.day_of_week})"
+    
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+
+class CustomUser(AbstractUser):
+    student_id = models.CharField(max_length=20, blank=True)
+    university = models.CharField(max_length=100, blank=True)
+
+    def __str__(self):
+        return self.username

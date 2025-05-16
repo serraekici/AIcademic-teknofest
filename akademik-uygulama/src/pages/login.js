@@ -11,23 +11,31 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await fetch("http://localhost:8000/api/token/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ username, password })
-    });
+ try {
+      const response = await fetch("http://127.0.0.1:8000/api/token/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+      });
 
-    const result = await response.json();
+      const result = await response.json();
 
-    if (response.ok) {
-      localStorage.setItem("access", result.access);
-      localStorage.setItem("refresh", result.refresh);
-      setMessage("Giriş başarılı! Yönlendiriliyorsunuz...");
-      setTimeout(() => navigate("/"), 2000);
-    } else {
-      setMessage("Giriş başarısız: " + JSON.stringify(result));
+    
+if (response.ok) {
+        localStorage.setItem("access", result.access);
+        localStorage.setItem("refresh", result.refresh);
+        localStorage.setItem("username", username);  // 🔥 Burada kullanıcı adını saklıyoruz
+
+        setMessage("Giriş başarılı!");
+        setTimeout(() => navigate("/"), 1500); // Anasayfaya yönlendir
+      } else {
+        setMessage("Hatalı giriş bilgileri: " + JSON.stringify(result));
+      }
+    } catch (error) {
+      setMessage("Sunucuya bağlanılamıyor.");
+      console.error(error);
     }
   };
 

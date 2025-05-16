@@ -17,31 +17,27 @@ class CourseSerializer(serializers.ModelSerializer):
         model = Course
         fields = '__all__'
         
+from rest_framework import serializers
+from .models import CustomUser
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
+    password2 = serializers.CharField(write_only=True)
 
     class Meta:
-        model = User
-        fields = ['username', 'email', 'password', 'password2']
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
+        model = CustomUser
+        fields = ('username', 'email', 'password', 'password2')
+        extra_kwargs = {'password': {'write_only': True}}
 
-    def save(self):
-        user = User(
-            email=self.validated_data['email'],
-            username=self.validated_data['username']
-        )
-        password = self.validated_data['password']
-        password2 = self.validated_data['password2']
+    def validate(self, data):
+        if data['password'] != data['password2']:
+            raise serializers.ValidationError("Şifreler eşleşmiyor.")
+        return data
 
-        if password != password2:
-            raise serializers.ValidationError({'password': 'Şifreler eşleşmiyor.'})
-
-        user.set_password(password)
-        user.save()
+    def create(self, validated_data):
+        validated_data.pop('password2')
+        user = CustomUser.objects.create_user(**validated_data)
         return user
+
 
 
 class UserSerializer(serializers.ModelSerializer):
