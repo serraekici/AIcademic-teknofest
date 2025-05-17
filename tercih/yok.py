@@ -12,7 +12,7 @@ def normalize(text):
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
-# ✅ Bölüm filtreleme fonksiyonu
+# ✅ Bölüm filtreleme fonksiyonu (otomatik sıralama genişlemeli)
 def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", siralama_kullanici: float = None, sehirler: list = None, sinava_girdi: bool = True):
     data_path = os.path.join(os.path.dirname(__file__), 'data', 'data.json')
 
@@ -28,17 +28,83 @@ def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", sirala
     
     # Şehirler normalize ediliyor
     sehirler = [normalize(s) for s in sehirler] if sehirler else None
-    uygunlar = []
     puan_turleri = ["say", "ea", "söz", "dil"] if puan_turu is None else [puan_turu.lower()]
 
-    # Özel eşleşme listesi – yazılım gibi kelimeler daha geniş aranır
+    # Özel eşleşme listesi
     ozel_eslesmeler = {
         "YAZILIM": ["YAZILIM", "BILGISAYAR", "YAZILIM MUHENDISLIGI", "BILGISAYAR MUHENDISLIGI"],
         "BILGISAYAR": ["BILGISAYAR", "YAZILIM", "BILGISAYAR MUHENDISLIGI", "YAZILIM MUHENDISLIGI"]
     }
 
+    # 🔁 Sıralama aralığını otomatik artır
+    if sinava_girdi and siralama_kullanici:
+        alt = siralama_kullanici * 0.9
+        ust_baslangic = siralama_kullanici * 2
+        ust_max = siralama_kullanici * 3
+        ust_artim = siralama_kullanici * 0.25
+        deneme_ust = ust_baslangic
+        filtrelenmis = []
+
+        while deneme_ust <= ust_max:
+            filtrelenmis.clear()
+            for uni in data.values():
+                if sehirler:
+                    uni_sehir_norm = normalize(uni["sehir"])
+                    if not any(sehir in uni_sehir_norm for sehir in sehirler):
+                        continue
+
+                for tur in puan_turleri:
+                    bolumler = uni.get(tur, [])
+                    for bolum in bolumler:
+                        bolum_adi = normalize(bolum.get("bolumAdi", ""))
+                        
+                        eşleşti = False
+                        for ilgi in ilgi_kelimeler:
+                            if ilgi == "OGRETMENLIK" and "OGRETMEN" in bolum_adi:
+                                eşleşti = True
+                                break
+                            elif ilgi == "MUHENDISLIK" and "MUHENDIS" in bolum_adi:
+                                eşleşti = True
+                                break
+                            elif ilgi in ozel_eslesmeler:
+                                if any(k in bolum_adi for k in ozel_eslesmeler[ilgi]):
+                                    eşleşti = True
+                                    break
+                            elif ilgi in bolum_adi:
+                                eşleşti = True
+                                break
+                        if not eşleşti:
+                            continue
+
+                        try:
+                            siralama = float(bolum["siralama"].replace(".", "").replace(",", "."))
+                        except:
+                            continue
+
+                        if siralama < alt or siralama > deneme_ust:
+                            continue
+
+                        filtrelenmis.append({
+                            "üniversite": uni["uniAdi"],
+                            "bölüm": bolum["bolumAdi"],
+                            "puan": bolum["puan"],
+                            "sıralama": bolum["siralama"],
+                            "siralama_float": siralama,
+                            "burs": bolum["burs"],
+                            "şehir": uni["sehir"]
+                        })
+
+            if len(filtrelenmis) >= 24:
+                break
+            deneme_ust += ust_artim
+
+        filtrelenmis.sort(key=lambda x: x["siralama_float"] if x["siralama_float"] is not None else float("inf"))
+        return filtrelenmis[:24]
+
+    # 🟡 Sınava girmediyse veya sıralama yoksa: sıralamasız filtreleme
+    uygunlar = []
+
     for uni in data.values():
-        # ✅ Şehir filtresi daha esnek: İSTANBUL (ÜSKÜDAR) gibi varyasyonlar eşleşir
         if sehirler:
             uni_sehir_norm = normalize(uni["sehir"])
             if not any(sehir in uni_sehir_norm for sehir in sehirler):
@@ -48,49 +114,43 @@ def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", sirala
             bolumler = uni.get(tur, [])
             for bolum in bolumler:
                 bolum_adi = normalize(bolum.get("bolumAdi", ""))
-                
-                # 🔍 İlgi alanı eşleşmesi
-                eşleşti = any(
-                    (
-                        "OGRETMEN" in bolum_adi if ilgi == "OGRETMENLIK" else
-                        any(kelime in bolum_adi for kelime in ozel_eslesmeler.get(ilgi, [ilgi]))
-                    )
-                    for ilgi in ilgi_kelimeler if ilgi
-                )
+
+                eşleşti = False
+                for ilgi in ilgi_kelimeler:
+                    if ilgi == "OGRETMENLIK" and "OGRETMEN" in bolum_adi:
+                        eşleşti = True
+                        break
+                    elif ilgi == "MUHENDISLIK" and "MUHENDIS" in bolum_adi:
+                        eşleşti = True
+                        break
+                    elif ilgi in ozel_eslesmeler:
+                        if any(k in bolum_adi for k in ozel_eslesmeler[ilgi]):
+                            eşleşti = True
+                            break
+                    elif ilgi in bolum_adi:
+                        eşleşti = True
+                        break
 
                 if not eşleşti:
                     continue
 
-                # 🔍 Başarı sırası ve filtre
                 try:
                     siralama = float(bolum["siralama"].replace(".", "").replace(",", "."))
                 except:
-                    siralama = None
-
-                if siralama is None:
                     continue
 
-                uygun = True
+                if sinava_girdi == False and siralama > 100000:
+                    continue
 
-                if sinava_girdi and siralama_kullanici:
-                    alt = siralama_kullanici * 0.8
-                    ust = siralama_kullanici * 1.2
-                    if not (alt <= siralama <= ust):
-                        uygun = False
-                elif not sinava_girdi and siralama > 100000:
-                    uygun = False
+                uygunlar.append({
+                    "üniversite": uni["uniAdi"],
+                    "bölüm": bolum["bolumAdi"],
+                    "puan": bolum["puan"],
+                    "sıralama": bolum["siralama"],
+                    "siralama_float": siralama,
+                    "burs": bolum["burs"],
+                    "şehir": uni["sehir"]
+                })
 
-                if uygun:
-                    uygunlar.append({
-                        "üniversite": uni["uniAdi"],
-                        "bölüm": bolum["bolumAdi"],
-                        "puan": bolum["puan"],
-                        "sıralama": bolum["siralama"],
-                        "siralama_float": siralama,
-                        "burs": bolum["burs"],
-                        "şehir": uni["sehir"]
-                    })
-
-    # ✅ En iyi sıralamaya göre sırala ve ilk 24 bölümü döndür
     uygunlar.sort(key=lambda x: x["siralama_float"] if x["siralama_float"] is not None else float("inf"))
     return uygunlar[:24]
