@@ -37,6 +37,7 @@ class Event(models.Model):
 class ExamSchedule(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) 
     course_name = models.CharField(max_length=100)
+    exam_type = models.CharField(max_length=50)
     exam_date = models.DateField()
     exam_time = models.TimeField()
     location = models.CharField(max_length=100, blank=True)

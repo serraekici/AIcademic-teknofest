@@ -56,9 +56,11 @@ class EventSerializer(serializers.ModelSerializer):
 
 # 7) ExamSchedule Serializer
 class ExamScheduleSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
     class Meta:
         model = ExamSchedule
         fields = '__all__'
+
 
 # 8) LessonSchedule Serializer
 class LessonScheduleSerializer(serializers.ModelSerializer):
