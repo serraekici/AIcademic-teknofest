@@ -1,25 +1,29 @@
 from rest_framework import serializers
-from .models import Student
-from .models import Course
+from .models import Student, Course, Event, ExamSchedule, LessonSchedule, CustomUser
 from django.contrib.auth.models import User
-from .models import Event
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+# 1) JWT'ye kullanıcı adını ekleyen serializer
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['username'] = user.username
+        return token
 
-
+# 2) Student Serializer
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = '__all__'
 
-
+# 3) Course Serializer
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = '__all__'
-        
-from rest_framework import serializers
-from .models import CustomUser
 
+# 4) Kayıt (Register) Serializer (CustomUser için)
 class RegisterSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True)
 
@@ -38,26 +42,25 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = CustomUser.objects.create_user(**validated_data)
         return user
 
-
-
+# 5) User Serializer (admin veya listeleme için)
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'date_joined']
 
+# 6) Event Serializer
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = '__all__'
 
-from rest_framework import serializers
-from .models import ExamSchedule, LessonSchedule
-
+# 7) ExamSchedule Serializer
 class ExamScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExamSchedule
-        fields = '__all__'  # veya ['user', 'course_name', 'exam_date', 'exam_time', 'location']
+        fields = '__all__'
 
+# 8) LessonSchedule Serializer
 class LessonScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = LessonSchedule

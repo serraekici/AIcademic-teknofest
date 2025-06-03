@@ -1,37 +1,26 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import StudentViewSet, CourseViewSet
-from .views_auth import RegisterView, LoginView
-from django.urls import path
-from .views import RegisterView
-from .views import UserListViewSet
-from .views import protected_view
-from .views import profile_view
-from .views import schedule_view
-from .views import upload_exam_file
-from .views import EventViewSet
-from rest_framework.routers import DefaultRouter
-from .views import ExamScheduleViewSet
+from .views import (
+    welcome, protected_view, profile_view, schedule_view, upload_exam_file,
+    StudentViewSet, CourseViewSet, EventViewSet, ExamScheduleViewSet, LessonScheduleViewSet,
+    RegisterView, UserListViewSet, MyTokenObtainPairView
+)
 
 router = DefaultRouter()
 router.register(r'students', StudentViewSet)
-router.register(r'courses', CourseViewSet)  
-router.register(r'users', UserListViewSet)
+router.register(r'courses', CourseViewSet)
 router.register(r'events', EventViewSet)
-router.register(r'exams', ExamScheduleViewSet, basename='exams')
-
+router.register(r'exam-schedules', ExamScheduleViewSet)
+router.register(r'lesson-schedules', LessonScheduleViewSet)
+router.register(r'users', UserListViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('register/', RegisterView.as_view(), name='register'),
-    path('login/', LoginView.as_view(), name='login'),
+    path('', welcome, name='welcome'),
+    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),   # 👈 kendi JWT login endpointin
     path('protected/', protected_view, name='protected'),
     path('profile/', profile_view, name='profile'),
     path('schedule/', schedule_view, name='schedule'),
-    path('upload-exam/', upload_exam_file, name='upload_exam'),
+    path('upload-exam/', upload_exam_file, name='upload_exam_file'),
+    path('register/', RegisterView.as_view(), name='register'),
     path('', include(router.urls)),
-    
 ]
-
-
-

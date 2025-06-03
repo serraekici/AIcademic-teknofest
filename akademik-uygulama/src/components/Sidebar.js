@@ -6,15 +6,19 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
+    localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
+    localStorage.removeItem('username');
     navigate('/login');
   };
+
+  const username = localStorage.getItem('username');
 
   return (
     <div className="sidebar">
       <div className="user-info">
         <div className="user-avatar">👤</div>
-        <div className="user-name">Kullanıcı Adı</div>
+        <div className="user-name">{username || "Kullanıcı Adı"}</div>
       </div>
       <ul className="sidebar-menu">
         <li>⭐ Favoriler</li>

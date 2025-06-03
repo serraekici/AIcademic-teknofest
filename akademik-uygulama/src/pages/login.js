@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/style.css'; // varsa CSS bağlantını yap
+import '../styles/style.css';
+import { jwtDecode } from 'jwt-decode';
+
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -8,10 +10,17 @@ const Login = () => {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const token = localStorage.getItem("access");
+    if (token) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
- try {
+    try {
       const response = await fetch("http://127.0.0.1:8000/api/token/", {
         method: "POST",
         headers: {
@@ -22,25 +31,28 @@ const Login = () => {
 
       const result = await response.json();
 
-    
-if (response.ok) {
+      if (response.ok) {
         localStorage.setItem("access", result.access);
         localStorage.setItem("refresh", result.refresh);
-        localStorage.setItem("username", username);  // 🔥 Burada kullanıcı adını saklıyoruz
 
-        setMessage("Giriş başarılı!");
-        setTimeout(() => navigate("/"), 1500); // Anasayfaya yönlendir
+        // 🔥 Token'dan username çıkar ve sakla
+        const decoded = jwtDecode(result.access);
+
+        localStorage.setItem("username", decoded.username);
+
+        navigate("/dashboard");
+
       } else {
-        setMessage("Hatalı giriş bilgileri: " + JSON.stringify(result));
+        setMessage("Hatalı giriş: " + JSON.stringify(result));
       }
     } catch (error) {
-      setMessage("Sunucuya bağlanılamıyor.");
-      console.error(error);
+      console.error("Giriş hatası:", error);
+      setMessage("Sunucuya ulaşılamıyor.");
     }
   };
 
   const handleSignup = () => {
-    navigate("/register"); // kayıt sayfan varsa yönlendir
+    navigate("/register");
   };
 
   return (
@@ -75,7 +87,7 @@ if (response.ok) {
         <div id="response-message" style={{ marginTop: "10px", color: "red" }}>{message}</div>
 
         <h2>Ücretsiz Kayıt ol ve Hemen Çalışmaya Başla!</h2>
-        <p className="note">Öğrenci e-postanla kayıt olarak Premium özelliklerini keşfet!</p>
+        <p className="note">Öğrenci e-postanla kayıt olarak Premium özellikleri keşfet!</p>
 
         <button onClick={handleSignup} className="main-button">Kayıt Ol!</button>
       </div>

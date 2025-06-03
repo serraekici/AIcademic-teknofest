@@ -1,9 +1,35 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import {jwtDecode} from 'jwt-decode';
 import '../styles/Dashboard.css';
 import Sidebar from '../components/Sidebar';
 import logo from '../logo.svg';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const [username, setUsername] = useState('');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("access");
+    if (!token) {
+      navigate("/login");
+    } else {
+      try {
+        const decoded = jwtDecode(token);
+        setUsername(decoded.username); // token'dan kullanıcı adı çek
+      } catch (error) {
+        console.error("Token çözümlenemedi:", error);
+        navigate("/login");
+      }
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    navigate("/login");
+  };
+
   return (
     <div className="dashboard-container">
       <Sidebar />
@@ -11,6 +37,7 @@ const Dashboard = () => {
       <div className="main-content">
         <div className="logo-section">
           <img src={logo} alt="Logo" className="main-logo" />
+          <h2>Hoş geldin {username}!</h2> {/* ✅ Kullanıcı adı burada gösterilir */}
         </div>
 
         <div className="chatbot-section">
