@@ -67,7 +67,10 @@ def upload_exam_file(request):
         return Response({"message": "Dosya alındı, işleniyor..."})
     else:
         return Response({"error": "Dosya alınamadı."}, status=400)
+from django.http import JsonResponse
 
+def welcome(request):
+    return JsonResponse({"message": "Uygulama Backend Çalışıyor!"})
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
