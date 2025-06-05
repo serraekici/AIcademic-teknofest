@@ -33,7 +33,8 @@ def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", sirala
     # Özel eşleşme listesi
     ozel_eslesmeler = {
         "YAZILIM": ["YAZILIM", "BILGISAYAR", "YAZILIM MUHENDISLIGI", "BILGISAYAR MUHENDISLIGI"],
-        "BILGISAYAR": ["BILGISAYAR", "YAZILIM", "BILGISAYAR MUHENDISLIGI", "YAZILIM MUHENDISLIGI"]
+        "BILGISAYAR": ["BILGISAYAR", "YAZILIM", "BILGISAYAR MUHENDISLIGI", "YAZILIM MUHENDISLIGI"],
+        "DIS": ["DIS", "DIS HEKIMLIGI", "DISHEKIMLIGI", "DISH"]  # yeni eklenen
     }
 
     # 🔁 Sıralama aralığını otomatik artır
@@ -66,6 +67,10 @@ def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", sirala
                             elif ilgi == "MUHENDISLIK" and "MUHENDIS" in bolum_adi:
                                 eşleşti = True
                                 break
+                            elif ilgi == "DIS":
+                                if "DIS" in bolum_adi and "HEKIM" in bolum_adi:
+                                    eşleşti = True
+                                    break
                             elif ilgi in ozel_eslesmeler:
                                 if any(k in bolum_adi for k in ozel_eslesmeler[ilgi]):
                                     eşleşti = True
