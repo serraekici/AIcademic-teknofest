@@ -6,7 +6,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser
-
+from rest_framework.permissions import AllowAny
+from .models import LessonSchedule, ExamSchedule
+from .serializers import LessonScheduleSerializer, ExamScheduleSerializer
 from .models import (
     Course, Student, Event, ExamSchedule, LessonSchedule, CustomUser
 )
@@ -83,9 +85,12 @@ class EventViewSet(viewsets.ModelViewSet):
 class ExamScheduleViewSet(viewsets.ModelViewSet):
     queryset = ExamSchedule.objects.all()
     serializer_class = ExamScheduleSerializer
-
+    
     def get_queryset(self):
-        return ExamSchedule.objects.filter(user=self.request.user)
+        user = self.request.query_params.get('user')
+        if user:
+            return ExamSchedule.objects.filter(user__id=user)
+        return super().get_queryset()
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -93,6 +98,13 @@ class ExamScheduleViewSet(viewsets.ModelViewSet):
 class LessonScheduleViewSet(viewsets.ModelViewSet):
     queryset = LessonSchedule.objects.all()
     serializer_class = LessonScheduleSerializer
+
+    # Kullanıcıya göre filtreleme
+    def get_queryset(self):
+        user = self.request.query_params.get('user')
+        if user:
+            return LessonSchedule.objects.filter(user__id=user)
+        return super().get_queryset()
 
 class RegisterView(APIView):
     def post(self, request):
@@ -106,3 +118,7 @@ class UserListViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
+from django.http import JsonResponse
+ 
+def welcome(request):
+    return JsonResponse({"message": "Uygulama Backend Çalışıyor!"})

@@ -5,16 +5,20 @@ import Sidebar from '../components/Sidebar';
 import logo from '../logo.svg';
 import { useNavigate } from 'react-router-dom';
 
+
 const Dashboard = () => {
   const [username, setUsername] = useState('');
   const [examSchedules, setExamSchedules] = useState([]);
-  // 🔥 State tanımını buraya AL!
   const [newExam, setNewExam] = useState({
     course_name: '',
     exam_type: '',
     exam_date: '',
     exam_time: '',
-  });
+  }
+);
+const handleChatbotCardClick = () => {
+  navigate("/chatbot-plan");
+};
 
   const navigate = useNavigate();
 
@@ -38,14 +42,26 @@ const Dashboard = () => {
   useEffect(() => {
     const token = localStorage.getItem('access');
     if (!token) return;
-    fetch('http://localhost:8000/api/exam-schedules/', {
+    fetch('http://localhost:8000/api/schedule/', {
       headers: {
         'Authorization': `Bearer ${token}`,
       }
     })
     .then(res => res.json())
-    .then(data => setExamSchedules(data))
-    .catch(err => console.error('Sınav programı çekilemedi:', err));
+    .then(data => {
+      // 👇 HATALARI TAMAMEN ENGELLER, SAĞLAM YAPI 👇
+      if (Array.isArray(data.results)) {
+        setExamSchedules(data.results);
+      } else if (Array.isArray(data)) {
+        setExamSchedules(data);
+      } else {
+        setExamSchedules([]);
+      }
+    })
+    .catch(err => {
+      console.error('Sınav programı çekilemedi:', err);
+      setExamSchedules([]);
+    });
   }, []);
 
   // Formdan yeni sınav ekleme
@@ -59,7 +75,7 @@ const Dashboard = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const token = localStorage.getItem('access');
-    fetch('http://localhost:8000/api/exam-schedules/', {
+    fetch('http://localhost:8000/api/schedule/', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -73,7 +89,7 @@ const Dashboard = () => {
       throw new Error(JSON.stringify(err));
     })
     .then(data => {
-      setExamSchedules([...examSchedules, data]);
+      setExamSchedules(prev => [...prev, data]);
       setNewExam({ course_name: '', exam_type: '', exam_date: '', exam_time: '' });
     })
     .catch(err => alert("Sınav eklenemedi: " + err.message));
@@ -84,6 +100,7 @@ const Dashboard = () => {
     localStorage.removeItem("refresh");
     navigate("/login");
   };
+  
 
   return (
     <div className="dashboard-container">
@@ -95,11 +112,21 @@ const Dashboard = () => {
           <h2>Hoş geldin {username}!</h2>
         </div>
 
-        <div className="chatbot-section">
-          <div className="chatbot-card">Chatbot 1</div>
-          <div className="chatbot-card">Chatbot 2</div>
-          <div className="chatbot-card">Chatbot 3</div>
+              <div className="chatbot-section">
+        <div
+          className="chatbot-card"
+          onClick={handleChatbotCardClick}
+          style={{ cursor: "pointer" }}
+        >
+          GPT Çalışma Planı Chatbotu
         </div>
+
+        <div className="chatbot-card">Chatbot 2</div>
+        <div className="chatbot-card">Chatbot 3</div>
+      </div>
+
+     
+
 
         {/* Sınav Ekleme Formu */}
         <form onSubmit={handleSubmit} className="exam-form">
@@ -149,7 +176,7 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {examSchedules.map((exam, idx) => (
+              {Array.isArray(examSchedules) && examSchedules.map((exam, idx) => (
                 <tr key={idx}>
                   <td>{exam.course_name}</td>
                   <td>{exam.exam_type}</td>
@@ -165,9 +192,12 @@ const Dashboard = () => {
       <div className="right-section">
         <div className="calendar">📅 Takvim</div>
         <div className="events">📌 Etkinlikler</div>
+        <button onClick={handleLogout}>Çıkış Yap</button>
       </div>
     </div>
   );
+    
+
 };
 
 export default Dashboard;

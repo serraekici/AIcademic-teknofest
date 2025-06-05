@@ -36,3 +36,14 @@
     transform: rotate(360deg);
   }
 }
+.modal-overlay {
+  position: fixed; z-index: 999; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
+}
+.modal-content {
+  background: white; padding: 32px; border-radius: 16px; min-width: 320px; max-width: 90vw;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.18); position: relative;
+}
+.close-btn {
+  position: absolute; top: 16px; right: 32px; font-size: 24px; background: none; border: none; cursor: pointer;
+}

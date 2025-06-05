@@ -1,68 +1,82 @@
-
-from flask import Flask, render_template, request, redirect
-import os, json
-from utils.ocr import extract_text_from_image
-from utils.filename_cleaner import normalize_filename
-from utils.gpt_plan import generate_smart_plan
+import os
 from dotenv import load_dotenv
-from utils.text_cleaner import clean_exam_text
-
-
-load_dotenv()
-
+from openai import OpenAI
+import requests
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'uploads'
-SESSION_FILE = 'session_data.json'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+CORS(app)
 
-def save_session(data):
-    with open(SESSION_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+# .env dosyasından API anahtarını al
+load_dotenv()
+api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=api_key)
 
-def load_session():
-    if os.path.exists(SESSION_FILE):
-        with open(SESSION_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return {}
+def examlari_api_ile_cek(token):
+    url = "http://127.0.0.1:8000/api/schedule/"
+    headers = {"Authorization": f"Bearer {token}"}
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        exams = response.json()
+        dersler = []
+        for e in exams:
+            dersler.append({
+                "ders": e["lesson"],
+                "tarih": e["exam_date"]
+            })
+        return dersler
+    else:
+        print("API'dan veri alınamadı! (Status code:", response.status_code, ")")
+        print("Hata:", response.text)
+        return []
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        file = request.files['image']
-        filename = normalize_filename(file.filename)
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(filepath)
+def plan_prompt_olustur(dersler, yontem):
+    ders_bilgisi = "\n".join([f"- {d['ders']}: {d['tarih']}" for d in dersler])
+    prompt = f"""
+Sen bir yapay zeka destekli eğitim danışmanısın.
+Öğrencinin sınav tarihleri ve tercih ettiği çalışma yöntemi aşağıda verilmiştir.
 
-        ocr_text = extract_text_from_image(filepath)
-        print("OCR ÇIKTISI:\n", ocr_text)
-        exam_text = clean_exam_text(ocr_text)
+🧠 Çalışma Yöntemi: {yontem.upper()}
+📆 Sınav Takvimi:
+{ders_bilgisi}
 
-        smart_plan = generate_smart_plan(exam_text, start_date="18 Mart")
-        save_session({
-            "ocr_text": ocr_text,
-            "exam_text": exam_text,
-            "plan_text": smart_plan
-        })
+Kurallar:
+- Plan, {yontem} yöntemine uygun hazırlanmalı.
+- Günlük plan sade, uygulanabilir ve öğrenci dostu olsun.
+- Eğer Pomodoro ise: 25 dakika çalışma + 5 dakika mola, 4 setten sonra uzun mola.
+- Eğer Blok ise: 60-90 dakikalık odaklanmış seanslar öner.
+- Eğer Klasik ise: her ders için belirli gün ve saat öner.
+- Eğer Yoğun Tekrar ise: sınava yakın dönemde tekrar odaklı plan yap.
+- Planı haftalık ya da günlük olarak listele.
 
-        return redirect('/plan')
+Şimdi bu bilgilere göre detaylı bir çalışma planı oluştur.
+"""
+    return prompt
 
-    return render_template("index.html")
+def plan_olustur(dersler, calisma_yontemi):
+    prompt = plan_prompt_olustur(dersler, calisma_yontemi)
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "Sen kişiye özel çalışma planı hazırlayan bir eğitim danışmanısın."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    return response.choices[0].message.content
 
-@app.route('/plan')
-def plan():
-    data = load_session()
-    plan_text = data.get("plan_text", "Plan oluşturulamadı.")
-    return render_template("plan.html", plan=plan_text)
+@app.route('/api/generate-study-plan/', methods=['POST'])
+def generate_study_plan():
+    data = request.get_json()
+    study_method = data.get('study_method')
+    jwt_token = data.get('jwt_token')
 
-@app.route('/today')
-def today():
-    from utils.gpt_plan import what_to_study_today
-    data = load_session()
-    plan_text = data.get("plan_text", "")
-    suggestion = what_to_study_today(plan_text)
-    return f"<h2>📅 Bugünlük Öneri:</h2><pre>{suggestion}</pre><br><a href='/plan'>🔙 Plana Dön</a>"
+    dersler = examlari_api_ile_cek(jwt_token)
+    if not dersler:
+        return jsonify({'error': 'Exam data could not be fetched'}), 400
 
+    plan = plan_olustur(dersler, study_method)
+    return jsonify({'plan': plan})
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(port=5000, debug=True)

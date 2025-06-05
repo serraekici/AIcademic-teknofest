@@ -4,7 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/login'; 
 import Register from './pages/register';
 import Profile from './pages/profile';
-
+import ChatbotPlan from './pages/chatbotplan';
 // Korumalı rota: token yoksa login'e atıyor
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("access");
@@ -28,6 +28,14 @@ const App = () => {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/chatbot-plan"
+          element={
+            <PrivateRoute>
+              <ChatbotPlan />
+            </PrivateRoute>
+          }
+/>
         <Route
           path="/profile"
           element={
