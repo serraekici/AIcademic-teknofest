@@ -15,11 +15,10 @@ router.register(r'exam-schedules', ExamScheduleViewSet)
 router.register(r'lesson-schedules', LessonScheduleViewSet)
 router.register(r'users', UserListViewSet)
 
-urlpatterns = [
-    path('api/', include(router.urls)),
+urlpatterns = router.urls + [
     path('', welcome, name='welcome'),
-    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),  # <-- DÜZELT!
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),   # <-- YENİ EKLE!
+    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('protected/', protected_view, name='protected'),
     path('profile/', profile_view, name='profile'),
     path('schedule/', schedule_view, name='schedule'),

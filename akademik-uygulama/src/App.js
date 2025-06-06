@@ -5,6 +5,8 @@ import Login from './pages/login';
 import Register from './pages/register';
 import Profile from './pages/profile';
 import ChatbotPlan from './pages/chatbotplan';
+import ExamSchedulePage from './pages/ExamSchedulePage';
+import KaynakChatbot from "./pages/kaynakchatbot";
 // Korumalı rota: token yoksa login'e atıyor
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("access");
@@ -25,6 +27,21 @@ const App = () => {
           element={
             <PrivateRoute>
               <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route 
+        path="/kaynakchatbot" 
+        element={
+          <PrivateRoute>
+            <KaynakChatbot />
+          </PrivateRoute>}
+        />
+        <Route
+          path="/exam-schedule"
+          element={
+            <PrivateRoute>
+              <ExamSchedulePage />
             </PrivateRoute>
           }
         />

@@ -8,14 +8,8 @@ import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const [username, setUsername] = useState('');
-  const [examSchedules, setExamSchedules] = useState([]);
-  const [newExam, setNewExam] = useState({
-    course_name: '',
-    exam_type: '',
-    exam_date: '',
-    exam_time: '',
-  }
-);
+  
+
 const handleChatbotCardClick = () => {
   navigate("/chatbot-plan");
 };
@@ -38,68 +32,11 @@ const handleChatbotCardClick = () => {
     }
   }, [navigate]);
 
-  // Sınav programlarını çek
-  useEffect(() => {
-    const token = localStorage.getItem('access');
-    if (!token) return;
-    fetch('http://localhost:8000/api/schedule/', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      }
-    })
-    .then(res => res.json())
-    .then(data => {
-      // 👇 HATALARI TAMAMEN ENGELLER, SAĞLAM YAPI 👇
-      if (Array.isArray(data.results)) {
-        setExamSchedules(data.results);
-      } else if (Array.isArray(data)) {
-        setExamSchedules(data);
-      } else {
-        setExamSchedules([]);
-      }
-    })
-    .catch(err => {
-      console.error('Sınav programı çekilemedi:', err);
-      setExamSchedules([]);
-    });
-  }, []);
+  const handleKaynakChatbotCardClick = () => {
+    navigate("/kaynakchatbot");
+} ;
 
-  // Formdan yeni sınav ekleme
-  const handleChange = (e) => {
-    setNewExam({
-      ...newExam,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem('access');
-    fetch('http://localhost:8000/api/schedule/', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(newExam)
-    })
-    .then(async res => {
-      if (res.ok) return res.json();
-      const err = await res.json();
-      throw new Error(JSON.stringify(err));
-    })
-    .then(data => {
-      setExamSchedules(prev => [...prev, data]);
-      setNewExam({ course_name: '', exam_type: '', exam_date: '', exam_time: '' });
-    })
-    .catch(err => alert("Sınav eklenemedi: " + err.message));
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-    navigate("/login");
-  };
+  
   
 
   return (
@@ -110,8 +47,10 @@ const handleChatbotCardClick = () => {
         <div className="logo-section">
           <img src={logo} alt="Logo" className="main-logo" />
           <h2>Hoş geldin {username}!</h2>
-        </div>
+      
 
+        </div>
+        
               <div className="chatbot-section">
         <div
           className="chatbot-card"
@@ -121,78 +60,25 @@ const handleChatbotCardClick = () => {
           GPT Çalışma Planı Chatbotu
         </div>
 
-        <div className="chatbot-card">Chatbot 2</div>
+        <div
+          className="chatbot-card"
+          onClick={handleKaynakChatbotCardClick}
+          style={{ cursor: "pointer" }}
+        >
+          Kaynak Chatbot
+        </div>
+        
         <div className="chatbot-card">Chatbot 3</div>
       </div>
 
-     
 
-
-        {/* Sınav Ekleme Formu */}
-        <form onSubmit={handleSubmit} className="exam-form">
-          <input
-            type="text"
-            name="course_name"
-            placeholder="Ders Adı"
-            value={newExam.course_name}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="text"
-            name="exam_type"
-            placeholder="Sınav Türü (Vize/Final)"
-            value={newExam.exam_type}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="date"
-            name="exam_date"
-            value={newExam.exam_date}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="time"
-            name="exam_time"
-            value={newExam.exam_time}
-            onChange={handleChange}
-            required
-          />
-          <button type="submit">Sınav Ekle</button>
-        </form>
-
-        {/* Gerçek Sınav Programı Tablosu */}
-        <div className="schedule-section">
-          <h3>Sınav Programı</h3>
-          <table className="schedule-table">
-            <thead>
-              <tr>
-                <th>Ders</th>
-                <th>Sınav Türü</th>
-                <th>Tarih</th>
-                <th>Saat</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Array.isArray(examSchedules) && examSchedules.map((exam, idx) => (
-                <tr key={idx}>
-                  <td>{exam.course_name}</td>
-                  <td>{exam.exam_type}</td>
-                  <td>{exam.exam_date}</td>
-                  <td>{exam.exam_time}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
       </div>
 
       <div className="right-section">
         <div className="calendar">📅 Takvim</div>
         <div className="events">📌 Etkinlikler</div>
-        <button onClick={handleLogout}>Çıkış Yap</button>
+        
+         
       </div>
     </div>
   );

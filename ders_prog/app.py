@@ -14,7 +14,7 @@ api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
 def examlari_api_ile_cek(token):
-    url = "http://127.0.0.1:8000/api/schedule/"
+    url = "http://127.0.0.1:8000/api/exam-schedules/"
     headers = {"Authorization": f"Bearer {token}"}
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
@@ -22,7 +22,7 @@ def examlari_api_ile_cek(token):
         dersler = []
         for e in exams:
             dersler.append({
-                "ders": e["lesson"],
+                "ders": e["course_name"],  # <-- Burada düzeltme yaptık!
                 "tarih": e["exam_date"]
             })
         return dersler
