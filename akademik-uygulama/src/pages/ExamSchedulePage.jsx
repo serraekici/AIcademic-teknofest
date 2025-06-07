@@ -7,6 +7,7 @@ const ExamSchedulePage = () => {
     exam_type: '',
     exam_date: '',
     exam_time: '',
+    difficulty: 'orta',
   });
 
   useEffect(() => {
@@ -58,9 +59,27 @@ const ExamSchedulePage = () => {
       })
       .then(data => {
         setExamSchedules(prev => [...prev, data]);
-        setNewExam({ course_name: '', exam_type: '', exam_date: '', exam_time: '' });
+        setNewExam({ course_name: '', exam_type: '', exam_date: '', exam_time: '', difficulty: 'orta' });
       })
       .catch(err => alert("Sınav eklenemedi: " + err.message));
+  };
+
+  // --- Silme Fonksiyonu ---
+  const handleDeleteExam = (examId) => {
+    const token = localStorage.getItem('access');
+    fetch(`http://localhost:8000/api/exam-schedules/${examId}/`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      }
+    })
+      .then(res => {
+        if (res.ok) {
+          setExamSchedules(prev => prev.filter(exam => exam.id !== examId));
+        } else {
+          alert("Sınav silinemedi!");
+        }
+      });
   };
 
   return (
@@ -98,6 +117,20 @@ const ExamSchedulePage = () => {
           onChange={handleChange}
           required
         />
+        <label htmlFor="difficulty" style={{ marginTop: "10px" }}>
+          Senin için zorluk seviyesi:
+        </label>
+        <select
+          id="difficulty"
+          name="difficulty"
+          value={newExam.difficulty}
+          onChange={handleChange}
+          required
+        >
+          <option value="kolay">Kolay</option>
+          <option value="orta">Orta</option>
+          <option value="zor">Zor</option>
+        </select>
         <button type="submit">Sınav Ekle</button>
       </form>
 
@@ -111,15 +144,23 @@ const ExamSchedulePage = () => {
               <th>Sınav Türü</th>
               <th>Tarih</th>
               <th>Saat</th>
+              <th>Senin için zorluk seviyesi</th>
+              <th>İşlem</th>
             </tr>
           </thead>
           <tbody>
             {Array.isArray(examSchedules) && examSchedules.map((exam, idx) => (
-              <tr key={idx}>
+              <tr key={exam.id || idx}>
                 <td>{exam.course_name}</td>
                 <td>{exam.exam_type}</td>
                 <td>{exam.exam_date}</td>
                 <td>{exam.exam_time}</td>
+                <td>{exam.difficulty || 'Belirtilmemiş'}</td>
+                <td>
+                  <button onClick={() => handleDeleteExam(exam.id)}>
+                    Sil
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

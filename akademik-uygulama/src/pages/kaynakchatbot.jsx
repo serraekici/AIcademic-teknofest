@@ -1,6 +1,29 @@
 import React, { useState, useRef } from "react";
 
-export default function KaynakChatbot() {
+// HER KUTUCUK için kullanılacak bileşen
+function ResourceCard({ html, onStarClick, isFavorited }) {
+  return (
+    <div style={{
+      border: "1px solid #ccc",
+      borderRadius: 14,
+      padding: 12,
+      marginBottom: 10,
+      background: "#fafafa",
+      position: "relative"
+    }}>
+      <div
+        style={{ position: "absolute", top: 10, right: 10, cursor: "pointer", fontSize: 20 }}
+        onClick={onStarClick}
+        title={isFavorited ? "Favorilerden çıkar" : "Favorilere ekle"}
+      >
+        {isFavorited ? "⭐" : "☆"}
+      </div>
+      <div dangerouslySetInnerHTML={{ __html: html }} />
+    </div>
+  );
+}
+
+export default function KaynakChatbot({ favorites, setFavorites }) {
   const [messages, setMessages] = useState([
     { sender: "bot", text: "🎓 Hoş geldin!<br>📘 Kitap ya da makale önerisi almak için bir konu yaz. (Örnek: kitap önerisi: yapay zeka)" }
   ]);
@@ -74,24 +97,65 @@ export default function KaynakChatbot() {
           flexDirection: "column",
           gap: 8
         }}>
-        {messages.map((msg, i) =>
-          <div
-            key={i}
-            className={msg.sender}
-            style={{
-              maxWidth: "70%",
-              padding: "8px 12px",
-              borderRadius: 20,
-              fontSize: 14,
-              lineHeight: 1.3,
-              alignSelf: msg.sender === "user" ? "flex-end" : "flex-start",
-              backgroundColor: msg.sender === "user" ? "#34b7f1" : "#dcf8c6",
-              color: msg.sender === "user" ? "#fff" : "#000",
-              wordWrap: "break-word"
-            }}
-            dangerouslySetInnerHTML={{ __html: msg.text }}
-          />
-        )}
+        {messages.map((msg, i) => {
+        if (msg.sender === "user") {
+          // Kullanıcı mesajı balon gibi gösterilecek
+          return (
+            <div
+              key={i}
+              style={{
+                maxWidth: "70%",
+                padding: "8px 12px",
+                borderRadius: 20,
+                fontSize: 14,
+                alignSelf: "flex-end",
+                backgroundColor: "#34b7f1",
+                color: "#fff",
+                marginBottom: 6
+              }}
+              dangerouslySetInnerHTML={{ __html: msg.text }}
+            />
+          );
+        } else {
+          // Bot mesajı: Eğer içinde <div> varsa, bunları kutucuklara ayır
+          const cards = msg.text.split('<div').slice(1).map((src, idx) => (
+            <ResourceCard
+  key={`${i}-${idx}`}
+  html={`<div${src}`}
+  onStarClick={() => {
+    if (favorites.includes(`<div${src}`)) {
+      setFavorites(favorites.filter(fav => fav !== `<div${src}`));
+    } else {
+      setFavorites([...favorites, `<div${src}`]);
+    }
+  }}
+  isFavorited={favorites.includes(`<div${src}`)}
+/>
+
+          ));
+          // Eğer hiç <div> yoksa, düz baloncuk olarak göster
+          if (cards.length === 0)
+            return (
+              <div
+                key={i}
+                style={{
+                  maxWidth: "70%",
+                  padding: "8px 12px",
+                  borderRadius: 20,
+                  fontSize: 14,
+                  alignSelf: "flex-start",
+                  backgroundColor: "#dcf8c6",
+                  color: "#000",
+                  marginBottom: 6
+                }}
+                dangerouslySetInnerHTML={{ __html: msg.text }}
+              />
+            );
+          // Kaynak kartları
+          return <React.Fragment key={i}>{cards}</React.Fragment>;
+        }
+      })}
+
       </div>
       <div style={{ display: "flex", width: "100%", gap: 8 }}>
         <input

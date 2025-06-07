@@ -36,7 +36,8 @@ const handleChatbotCardClick = () => {
     navigate("/kaynakchatbot");
 } ;
 
-  
+
+
   
 
   return (
