@@ -1,0 +1,111 @@
+.exam-schedule-page {
+  background: #f7f9fb;
+  min-height: 100vh;
+  padding: 0;
+}
+
+.exam-form {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px 0 rgba(80,90,110,0.06);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 28px;
+  margin-bottom: 32px;
+  align-items: flex-end;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.exam-form input,
+.exam-form select {
+  flex: 1 1 170px;
+  min-width: 150px;
+  background: #f7f9fb;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 16px;
+  color: #22396f;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.exam-form input:focus,
+.exam-form select:focus {
+  border-color: #4661e6;
+}
+
+.exam-form button {
+  background: #4661e6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: 10px;
+  transition: background 0.2s;
+}
+.exam-form button:hover {
+  background: #2940d3;
+}
+
+.schedule-section {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px 0 rgba(80,90,110,0.05);
+  padding: 28px;
+  max-width: 900px;
+  margin: 0 auto 24px auto;
+}
+
+.schedule-section h3 {
+  margin-top: 0;
+  color: #22396f;
+  font-size: 22px;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  background: #fff;
+}
+.schedule-table th, .schedule-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+.schedule-table th {
+  background: #f7f9fb;
+  color: #2940d3;
+  font-weight: 700;
+  font-size: 16px;
+}
+.schedule-table tr:last-child td {
+  border-bottom: none;
+}
+.schedule-table td {
+  color: #22396f;
+}
+
+.schedule-table button {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 5px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.schedule-table button:hover {
+  background: #b91c1c;
+}

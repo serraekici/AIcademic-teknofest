@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import './ExamSchedulePage.css';
 
 const ExamSchedulePage = () => {
   const [examSchedules, setExamSchedules] = useState([]);

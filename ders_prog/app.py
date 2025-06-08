@@ -76,9 +76,9 @@ def generate_study_plan():
     data = request.get_json()
     study_method = data.get('study_method')
     jwt_token = data.get('jwt_token')
+    custom_request = data.get('custom_request')  # <- ekledik!
     dersler = []
 
-    # Yöntem 1: Exams doğrudan frontend'den geliyorsa
     if "exams" in data and isinstance(data["exams"], list) and len(data["exams"]) > 0:
         for e in data["exams"]:
             dersler.append({
@@ -86,15 +86,26 @@ def generate_study_plan():
                 "tarih": e["exam_date"],
                 "zorluk": e.get("difficulty", "orta")
             })
-    # Yöntem 2: Exams frontend'den gelmiyorsa, API'dan çek
     elif jwt_token:
         dersler = examlari_api_ile_cek(jwt_token)
 
     if not dersler:
         return jsonify({'error': 'Ders verisi alınamadı.'}), 400
 
-    plan = plan_olustur(dersler, study_method)
-    return jsonify({'plan': plan})
+    prompt = plan_prompt_olustur(dersler, study_method)
+    # Özel istek varsa prompt'a ekle!
+    if custom_request:
+        prompt += f"\nKullanıcının ekstra isteği: {custom_request}\n"
+        prompt += "Ek istekleri mutlaka dikkate al."
 
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "Sen kişiye özel çalışma planı hazırlayan bir eğitim danışmanısın."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    plan = response.choices[0].message.content
+    return jsonify({'plan': plan})
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
