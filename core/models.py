@@ -41,7 +41,11 @@ class ExamSchedule(models.Model):
     exam_date = models.DateField()
     exam_time = models.TimeField()
     location = models.CharField(max_length=100, blank=True)
-
+    difficulty = models.CharField(max_length=10, choices=[
+        ('kolay', 'Kolay'),
+        ('orta', 'Orta'),
+        ('zor', 'Zor')
+    ])
     def __str__(self):
         return f"{self.user.username} - {self.course_name} ({self.exam_date})"
 

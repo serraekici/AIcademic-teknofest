@@ -1,5 +1,9 @@
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # Bunu ekle!
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

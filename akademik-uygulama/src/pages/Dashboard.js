@@ -7,16 +7,17 @@ import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const [username, setUsername] = useState('');
-  const [examSchedules, setExamSchedules] = useState([]);
-  // 🔥 State tanımını buraya AL!
-  const [newExam, setNewExam] = useState({
-    course_name: '',
-    exam_type: '',
-    exam_date: '',
-    exam_time: '',
-  });
+  const [plan, setPlan] = useState("");
 
   const navigate = useNavigate();
+
+  const handleChatbotCardClick = () => {
+    navigate("/chatbot-plan");
+  };
+
+  const handleKaynakChatbotCardClick = () => {
+    navigate("/kaynakchatbot");
+  };
 
   // Kullanıcı adı ve giriş kontrolü
   useEffect(() => {
@@ -34,55 +35,16 @@ const Dashboard = () => {
     }
   }, [navigate]);
 
-  // Sınav programlarını çek
+  // Çalışma planını localStorage'dan çek
   useEffect(() => {
-    const token = localStorage.getItem('access');
-    if (!token) return;
-    fetch('http://localhost:8000/api/exam-schedules/', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      }
-    })
-    .then(res => res.json())
-    .then(data => setExamSchedules(data))
-    .catch(err => console.error('Sınav programı çekilemedi:', err));
+    const storedPlan = localStorage.getItem("studyPlan");
+    if (storedPlan) setPlan(storedPlan);
   }, []);
 
-  // Formdan yeni sınav ekleme
-  const handleChange = (e) => {
-    setNewExam({
-      ...newExam,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem('access');
-    fetch('http://localhost:8000/api/exam-schedules/', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(newExam)
-    })
-    .then(async res => {
-      if (res.ok) return res.json();
-      const err = await res.json();
-      throw new Error(JSON.stringify(err));
-    })
-    .then(data => {
-      setExamSchedules([...examSchedules, data]);
-      setNewExam({ course_name: '', exam_type: '', exam_date: '', exam_time: '' });
-    })
-    .catch(err => alert("Sınav eklenemedi: " + err.message));
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-    navigate("/login");
+  // Planı sil
+  const handleDeletePlan = () => {
+    localStorage.removeItem("studyPlan");
+    setPlan("");
   };
 
   return (
@@ -96,78 +58,103 @@ const Dashboard = () => {
         </div>
 
         <div className="chatbot-section">
-          <div className="chatbot-card">Chatbot 1</div>
-          <div className="chatbot-card">Chatbot 2</div>
+          <div
+            className="chatbot-card"
+            onClick={handleChatbotCardClick}
+            style={{ cursor: "pointer" }}
+          >
+            GPT Çalışma Planı Chatbotu
+          </div>
+          <div
+            className="chatbot-card"
+            onClick={handleKaynakChatbotCardClick}
+            style={{ cursor: "pointer" }}
+          >
+            Kaynak Chatbot
+          </div>
           <div className="chatbot-card">Chatbot 3</div>
         </div>
 
-        {/* Sınav Ekleme Formu */}
-        <form onSubmit={handleSubmit} className="exam-form">
-          <input
-            type="text"
-            name="course_name"
-            placeholder="Ders Adı"
-            value={newExam.course_name}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="text"
-            name="exam_type"
-            placeholder="Sınav Türü (Vize/Final)"
-            value={newExam.exam_type}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="date"
-            name="exam_date"
-            value={newExam.exam_date}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="time"
-            name="exam_time"
-            value={newExam.exam_time}
-            onChange={handleChange}
-            required
-          />
-          <button type="submit">Sınav Ekle</button>
-        </form>
-
-        {/* Gerçek Sınav Programı Tablosu */}
-        <div className="schedule-section">
-          <h3>Sınav Programı</h3>
-          <table className="schedule-table">
-            <thead>
-              <tr>
-                <th>Ders</th>
-                <th>Sınav Türü</th>
-                <th>Tarih</th>
-                <th>Saat</th>
-              </tr>
-            </thead>
-            <tbody>
-              {examSchedules.map((exam, idx) => (
-                <tr key={idx}>
-                  <td>{exam.course_name}</td>
-                  <td>{exam.exam_type}</td>
-                  <td>{exam.exam_date}</td>
-                  <td>{exam.exam_time}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* Çalışma Planı Kartı tam burada! */}
+        <div style={{ margin: "10px 0 8px 0" }}>
+          {plan ? (
+            <div
+              style={{
+                border: "1px solid #ddd",
+                borderRadius: 14,
+                padding: 24,
+                background: "#f8fafc",
+                boxShadow: "0 2px 8px rgba(60,60,90,0.08)",
+                maxHeight: 260,
+                overflowY: "auto",
+                position: "relative",
+                marginBottom: 16,
+                color: "#111"
+              }}
+            >
+              <strong>Çalışma Planın:</strong>
+              <div style={{ margin: "16px 0", whiteSpace: "pre-line" }}>{plan}</div>
+              <button
+                onClick={handleDeletePlan}
+                style={{
+                  position: "absolute",
+                  top: 14,
+                  right: 14,
+                  border: "none",
+                  background: "#ef4444",
+                  color: "#fff",
+                  borderRadius: 6,
+                  padding: "4px 10px",
+                  cursor: "pointer",
+                  fontWeight: "bold"
+                }}
+              >
+                Sil
+              </button>
+            </div>
+          ) : (
+            <div style={{ color: "#555", fontStyle: "italic" }}>
+              Henüz bir çalışma planı yok.
+            </div>
+          )}
         </div>
       </div>
 
       <div className="right-section">
         <div className="calendar">📅 Takvim</div>
-        <div className="events">📌 Etkinlikler</div>
+         <div className="events" style={{
+          background: "#fff",
+          borderRadius: 12,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+          padding: 16,
+          marginTop: 12,
+          minWidth: 280,
+          maxWidth: 350,
+          minHeight: 110,
+          textAlign: "center"
+        }}>
+          <div style={{ fontWeight: "bold", fontSize: 17, marginBottom: 10 }}>
+            📌 Etkinlikler
+          </div>
+          <button
+            style={{
+              padding: "10px 20px",
+              background: "#2563eb",
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              cursor: "pointer",
+              fontWeight: "bold",
+              marginTop: 8
+            }}
+            onClick={() => navigate("/events")}
+          >
+            Tüm Etkinlikleri Gör
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default Dashboard;  

@@ -21,8 +21,17 @@ const Sidebar = () => {
         <div className="user-name">{username || "Kullanıcı Adı"}</div>
       </div>
       <ul className="sidebar-menu">
-        <li>⭐ Favoriler</li>
+        <li onClick={() => navigate("/favorites")} style={{ cursor: "pointer" }}>
+          ⭐ Favoriler
+        </li>
         <li onClick={handleLogout}>🚪 Çıkış Yap</li>
+        <div
+          className="exam-calendar-card"
+          onClick={() => navigate("/exam-schedule")}
+          style={{ cursor: "pointer" }}
+        >
+          🗓️ Sınav Takvimi
+        </div>
       </ul>
     </div>
   );
