@@ -19,6 +19,10 @@ const Dashboard = () => {
     navigate("/kaynakchatbot");
   };
 
+  const handleTercihChatbotCardClick = () => {
+    navigate("/tercihchatbot");
+  };
+
   // Kullanıcı adı ve giriş kontrolü
   useEffect(() => {
     const token = localStorage.getItem("access");
@@ -72,7 +76,13 @@ const Dashboard = () => {
           >
             Kaynak Chatbot
           </div>
-          <div className="chatbot-card">Chatbot 3</div>
+          <div
+            className="chatbot-card"
+            onClick={handleTercihChatbotCardClick}
+            style={{ cursor: "pointer" }}
+          >
+            Tercih Chatbotu
+          </div>
         </div>
 
         {/* Çalışma Planı Kartı tam burada! */}
@@ -157,4 +167,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;  
+export default Dashboard;
