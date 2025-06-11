@@ -73,6 +73,7 @@ def upload_exam_file(request):
         return Response({"message": "Dosya alındı, işleniyor..."})
     else:
         return Response({"error": "Dosya alınamadı."}, status=400)
+
 TICKETMASTER_API_KEY = os.getenv("TICKETMASTER_API_KEY")
 BASE_URL = "https://app.ticketmaster.com/discovery/v2/events.json"
 
@@ -116,6 +117,7 @@ def ticketmaster_events(request):
         if events:
             results.append(convert_event(events[0], tag))
     return Response(results)
+
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
