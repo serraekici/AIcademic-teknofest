@@ -8,7 +8,7 @@ import ChatbotPlan from './pages/chatbotplan';
 import ExamSchedulePage from './pages/ExamSchedulePage';
 import KaynakChatbot from "./pages/kaynakchatbot";
 import FavoritesPage from './pages/FavoritesPage';
-
+import EventsPage from "./pages/EventsPage";
 // Korumalı rota: token yoksa login'e atıyor
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("access");
@@ -42,7 +42,8 @@ const App = () => {
             </PrivateRoute>
           }
         />
-
+        <Route path="/events" 
+        element={<EventsPage />} />
         <Route
           path="/dashboard"
           element={

@@ -122,7 +122,36 @@ const Dashboard = () => {
 
       <div className="right-section">
         <div className="calendar">📅 Takvim</div>
-        <div className="events">📌 Etkinlikler</div>
+         <div className="events" style={{
+          background: "#fff",
+          borderRadius: 12,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+          padding: 16,
+          marginTop: 12,
+          minWidth: 280,
+          maxWidth: 350,
+          minHeight: 110,
+          textAlign: "center"
+        }}>
+          <div style={{ fontWeight: "bold", fontSize: 17, marginBottom: 10 }}>
+            📌 Etkinlikler
+          </div>
+          <button
+            style={{
+              padding: "10px 20px",
+              background: "#2563eb",
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              cursor: "pointer",
+              fontWeight: "bold",
+              marginTop: 8
+            }}
+            onClick={() => navigate("/events")}
+          >
+            Tüm Etkinlikleri Gör
+          </button>
+        </div>
       </div>
     </div>
   );

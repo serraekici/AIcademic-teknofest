@@ -3,10 +3,10 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     welcome, protected_view, profile_view, schedule_view, upload_exam_file,
     StudentViewSet, CourseViewSet, EventViewSet, ExamScheduleViewSet, LessonScheduleViewSet,
-    RegisterView, UserListViewSet, MyTokenObtainPairView
+    RegisterView, UserListViewSet, MyTokenObtainPairView,
 )
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
+from .views import ticketmaster_events
 router = DefaultRouter()
 router.register(r'students', StudentViewSet)
 router.register(r'courses', CourseViewSet)
@@ -24,4 +24,5 @@ urlpatterns = router.urls + [
     path('schedule/', schedule_view, name='schedule'),
     path('upload-exam/', upload_exam_file, name='upload_exam_file'),
     path('register/', RegisterView.as_view(), name='register'),
+    path('ticketmaster-events/', ticketmaster_events),
 ]

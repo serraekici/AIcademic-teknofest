@@ -20,6 +20,10 @@ from .serializers import (
 
 # JWT Custom View
 from rest_framework_simplejwt.views import TokenObtainPairView
+import requests
+import os
+
+
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
@@ -69,7 +73,49 @@ def upload_exam_file(request):
         return Response({"message": "Dosya alındı, işleniyor..."})
     else:
         return Response({"error": "Dosya alınamadı."}, status=400)
+TICKETMASTER_API_KEY = os.getenv("TICKETMASTER_API_KEY")
+BASE_URL = "https://app.ticketmaster.com/discovery/v2/events.json"
 
+CATEGORIES = {
+    "Konser": "music",
+    "Festival": "festival",
+    "Tiyatro": "theatre",
+    "Sergi": "arts & culture",
+    "Workshop": "education"
+}
+
+def convert_event(e, tag):
+    image_url = sorted(e["images"], key=lambda x: x["width"], reverse=True)[0]["url"]
+    venue = e.get("_embedded", {}).get("venues", [{}])[0]
+    city = venue.get("city", {}).get("name", "Bilinmiyor")
+    return {
+        "category": tag,
+        "title": e["name"],
+        "url": e["url"],
+        "start": e["dates"]["start"]["localDate"],
+        "city": city,
+        "image": image_url
+    }
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def ticketmaster_events(request):
+    results = []
+    for tag, classification in CATEGORIES.items():
+        params = {
+            "countryCode": "TR",
+            "classificationName": classification,
+            "sort": "date,asc",
+            "size": 10,
+            "apikey": TICKETMASTER_API_KEY
+        }
+        response = requests.get(BASE_URL, params=params)
+        if not response.ok:
+            continue
+        events = response.json().get("_embedded", {}).get("events", [])
+        if events:
+            results.append(convert_event(events[0], tag))
+    return Response(results)
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
