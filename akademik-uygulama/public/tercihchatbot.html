@@ -249,7 +249,7 @@ async function sendSessionToBackend() {
   };
 
   try {
-    const response = await fetch("http://127.0.0.1:5000/analyze", {
+    const response = await fetch("analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(toSend)
@@ -284,7 +284,7 @@ async function sendSessionToBackend() {
 
 async function findUniversityDetails(universityName) {
   try {
-    const response = await fetch("http://127.0.0.1:5000/university-detail", {
+    const response = await fetch("university-detail", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: universityName })
@@ -328,6 +328,7 @@ async function findUniversityDetails(universityName) {
     addMessage(`⚠️ Detaylar getirilemedi: ${error.message}`, "bot", true);
   }
 }
+
 </script>
 
 </body>

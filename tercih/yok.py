@@ -39,7 +39,7 @@ def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", sirala
 
     # 🔁 Sıralama aralığını otomatik artır
     if sinava_girdi and siralama_kullanici:
-        alt = siralama_kullanici * 0.9
+        alt = siralama_kullanici * 0.8
         ust_baslangic = siralama_kullanici * 2
         ust_max = siralama_kullanici * 3
         ust_artim = siralama_kullanici * 0.25
@@ -159,3 +159,6 @@ def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", sirala
 
     uygunlar.sort(key=lambda x: x["siralama_float"] if x["siralama_float"] is not None else float("inf"))
     return uygunlar[:24]
+
+
+

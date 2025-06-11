@@ -9,19 +9,21 @@ import ExamSchedulePage from './pages/ExamSchedulePage';
 import KaynakChatbot from "./pages/kaynakchatbot";
 import FavoritesPage from './pages/FavoritesPage';
 import EventsPage from "./pages/EventsPage";
+import TercihChatbot from "./pages/tercihchatbot";  // 🌟 YENİ EKLENDİ 🌟
+
 // Korumalı rota: token yoksa login'e atıyor
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("access");
   return token ? children : <Navigate to="/login" />;
 };
   
-
 const App = () => {
   const [favorites, setFavorites] = useState(() => {
     const saved = localStorage.getItem("favorites");
     return saved ? JSON.parse(saved) : [];
   });
-    useEffect(() => {
+
+  useEffect(() => {
     localStorage.setItem("favorites", JSON.stringify(favorites));
   }, [favorites]);
 
@@ -42,8 +44,8 @@ const App = () => {
             </PrivateRoute>
           }
         />
-        <Route path="/events" 
-        element={<EventsPage />} />
+        <Route path="/events" element={<EventsPage />} />
+
         <Route
           path="/dashboard"
           element={
@@ -87,6 +89,16 @@ const App = () => {
             </PrivateRoute>
           }
         />
+
+        <Route
+          path="/tercihchatbot"
+          element={
+            <PrivateRoute>
+              <TercihChatbot />
+            </PrivateRoute>
+          }
+        />
+
         <Route path="/" element={<Navigate to="/dashboard" />} />
       </Routes>
     </Router>
