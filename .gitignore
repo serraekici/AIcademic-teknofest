@@ -3,6 +3,7 @@ ticketmaster_data.json
 data.json
 uni_video_links.json
 universities.json
+node_modules/
 
 # Python cache dosyaları
 __pycache__/
