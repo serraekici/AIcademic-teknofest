@@ -7,26 +7,24 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import AllowAny
-from .models import LessonSchedule, ExamSchedule
-from .serializers import LessonScheduleSerializer, ExamScheduleSerializer
-from .models import (
-    Course, Student, Event, ExamSchedule, LessonSchedule, CustomUser
-)
+from .models import LessonSchedule, ExamSchedule, Course, Student, Event, CustomUser
 from .serializers import (
+    LessonScheduleSerializer, ExamScheduleSerializer,
     CourseSerializer, StudentSerializer, UserSerializer, RegisterSerializer,
-    EventSerializer, ExamScheduleSerializer, LessonScheduleSerializer,
-    MyTokenObtainPairSerializer
+    EventSerializer, MyTokenObtainPairSerializer
 )
-
-# JWT Custom View
 from rest_framework_simplejwt.views import TokenObtainPairView
 import requests
 import os
+import json
+import pathlib
 
 
+# JWT Custom View
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
+# Hoşgeldin endpoint
 def welcome(request):
     return JsonResponse({"message": "Uygulama Backend Calisiyor!"})
 
@@ -49,18 +47,8 @@ def profile_view(request):
 @permission_classes([IsAuthenticated])
 def schedule_view(request):
     data = [
-        {
-            "lesson": "Matematik 1",
-            "exam_type": "Vize",
-            "exam_date": "2024-12-05",
-            "exam_time": "10:00"
-        },
-        {
-            "lesson": "Fizik 1",
-            "exam_type": "Final",
-            "exam_date": "2024-12-20",
-            "exam_time": "13:30"
-        }
+        {"lesson": "Matematik 1", "exam_type": "Vize", "exam_date": "2024-12-05", "exam_time": "10:00"},
+        {"lesson": "Fizik 1", "exam_type": "Final", "exam_date": "2024-12-20", "exam_time": "13:30"}
     ]
     return Response(data)
 
@@ -74,6 +62,7 @@ def upload_exam_file(request):
     else:
         return Response({"error": "Dosya alınamadı."}, status=400)
 
+# Eski canlı Ticketmaster API sistemin (bunu da koruyorum)
 TICKETMASTER_API_KEY = os.getenv("TICKETMASTER_API_KEY")
 BASE_URL = "https://app.ticketmaster.com/discovery/v2/events.json"
 
@@ -118,6 +107,21 @@ def ticketmaster_events(request):
             results.append(convert_event(events[0], tag))
     return Response(results)
 
+# 🌟 BURASI YENİ EKLEDİĞİMİZ LOCAL JSON READER
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def local_ticketmaster_events(request):
+    try:
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
+        etkinlik_path = os.path.join(base_dir, 'etkinlik', 'ticketmaster_data.json')
+        with open(etkinlik_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return Response(data)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+# ViewSet'ler aynı şekilde kalıyor
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
@@ -133,7 +137,7 @@ class EventViewSet(viewsets.ModelViewSet):
 class ExamScheduleViewSet(viewsets.ModelViewSet):
     queryset = ExamSchedule.objects.all()
     serializer_class = ExamScheduleSerializer
-    
+
     def get_queryset(self):
         user = self.request.query_params.get('user')
         if user:
@@ -147,7 +151,6 @@ class LessonScheduleViewSet(viewsets.ModelViewSet):
     queryset = LessonSchedule.objects.all()
     serializer_class = LessonScheduleSerializer
 
-    # Kullanıcıya göre filtreleme
     def get_queryset(self):
         user = self.request.query_params.get('user')
         if user:
@@ -166,6 +169,7 @@ class UserListViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
+
 from django.http import JsonResponse
  
 def welcome(request):

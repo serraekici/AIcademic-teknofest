@@ -8,7 +8,6 @@ import ChatbotPlan from './pages/chatbotplan';
 import ExamSchedulePage from './pages/ExamSchedulePage';
 import KaynakChatbot from "./pages/kaynakchatbot";
 import FavoritesPage from './pages/FavoritesPage';
-import EventsPage from "./pages/EventsPage";
 import TercihChatbot from "./pages/tercihchatbot";  // 🌟 YENİ EKLENDİ 🌟
 
 // Korumalı rota: token yoksa login'e atıyor
@@ -44,7 +43,6 @@ const App = () => {
             </PrivateRoute>
           }
         />
-        <Route path="/events" element={<EventsPage />} />
 
         <Route
           path="/dashboard"
