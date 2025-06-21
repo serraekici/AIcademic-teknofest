@@ -92,3 +92,9 @@
   color: #5e35b1;
   border-radius: 50%;
 }
+.exam-date {
+  color: #4a148c !important;
+  font-weight: bold;
+  background-color: #ffffff !important;
+  border: 2px solid #8e24aa !important;
+}

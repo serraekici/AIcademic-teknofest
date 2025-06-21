@@ -7,6 +7,9 @@ from .views import (
     ticketmaster_events, local_ticketmaster_events  # Burası önemli
 )
 from rest_framework_simplejwt.views import TokenRefreshView
+from .views import ExamScheduleViewSet
+
+exam_schedule_list = ExamScheduleViewSet.as_view({'get': 'list'})
 
 router = DefaultRouter()
 router.register(r'students', StudentViewSet)
@@ -27,4 +30,6 @@ urlpatterns = router.urls + [
     path('register/', RegisterView.as_view()),
     path('ticketmaster-events/', ticketmaster_events),
     path('local-events/', local_ticketmaster_events),  # 🌟 EN ÖNEMLİ SATIR BU 🌟
+    path('user-exams/', exam_schedule_list),
+
 ]

@@ -174,3 +174,11 @@ from django.http import JsonResponse
  
 def welcome(request):
     return JsonResponse({"message": "Uygulama Backend Çalışıyor!"})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_exam_list(request):
+    user = request.user
+    exams = ExamSchedule.objects.filter(user=user)
+    serializer = ExamScheduleSerializer(exams, many=True)
+    return Response(serializer.data)
