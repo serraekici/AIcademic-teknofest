@@ -1,13 +1,16 @@
 .sidebar {
-  width: 200px;
-  background-color: #1e293b;
+  width: 250px;  /* 🔹 Daha dar */
+  background: linear-gradient(to bottom, #a183aa, #594a76);
   color: white;
-  padding: 20px;
+  padding: 24px 16px;  /* 🔹 Daha dar iç boşluk */
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center; /* 🔹 Ortalar */
+  min-height: 100vh;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.05);
 }
 
+/* Kullanıcı Bilgisi */
 .user-info {
   margin-bottom: 30px;
   text-align: center;
@@ -15,15 +18,17 @@
 }
 
 .user-avatar {
-  font-size: 40px;
+  font-size: 42px;
   margin-bottom: 10px;
 }
 
 .user-name {
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 600;
+  color: #ffffff;
 }
 
+/* Menü */
 .sidebar-menu {
   list-style: none;
   padding: 0;
@@ -33,11 +38,57 @@
 .sidebar-menu li {
   margin: 10px 0;
   cursor: pointer;
-  padding: 10px;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
+  padding: 10px 12px;
+  border-radius: 10px;
+  transition: background-color 0.25s ease;
+  font-size: 15px;
+  font-weight: 500;
 }
 
 .sidebar-menu li:hover {
-  background-color: #334155;
+  background-color: rgba(255,255,255,0.1);
+}
+
+/* Takvim Kutusu */
+.sidebar-calendar {
+  margin-top: 40px;  /* 🔼 Yukarı taşır (eski: auto) */
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Takvim */
+.sidebar-calendar .react-calendar {
+  width: 100%;
+  background-color: transparent;
+  border: none;
+  font-size: 12px;
+  color: white;
+}
+
+.sidebar-calendar .react-calendar__navigation button {
+  color: white;
+  background: none;
+  font-weight: bold;
+}
+
+.sidebar-calendar .react-calendar__tile {
+  color: white;
+  background: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar-calendar .react-calendar__tile:hover {
+  background-color: rgba(255,255,255,0.1);
+  border-radius: 50%;
+}
+
+.sidebar-calendar .react-calendar__tile--active {
+  background-color: #ffffff;
+  color: #5e35b1;
+  border-radius: 50%;
 }

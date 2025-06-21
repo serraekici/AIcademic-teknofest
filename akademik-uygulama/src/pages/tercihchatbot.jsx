@@ -7,8 +7,9 @@ const TercihChatbot = () => {
       title="Üniversite Tercih Asistanı"
       style={{
         width: '100%',
-        height: '100vh',
-        border: 'none'
+        minHeight: '100vh',
+        border: 'none',
+        display: 'block'
       }}
     />
   );

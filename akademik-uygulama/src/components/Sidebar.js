@@ -1,5 +1,7 @@
 import React from 'react';
 import '../styles/Sidebar.css';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 import { useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -24,16 +26,22 @@ const Sidebar = () => {
         <li onClick={() => navigate("/favorites")} style={{ cursor: "pointer" }}>
           ⭐ Favoriler
         </li>
-        <li onClick={handleLogout}>🚪 Çıkış Yap</li>
-        <div
-          className="exam-calendar-card"
-          onClick={() => navigate("/exam-schedule")}
-          style={{ cursor: "pointer" }}
-        >
+        <li onClick={() => navigate("/exam-schedule")} style={{ cursor: "pointer" }}>
           🗓️ Sınav Takvimi
-        </div>
+        </li>
+        <li onClick={handleLogout}>🚪 Çıkış Yap</li>
       </ul>
+      <div className="sidebar-calendar">
+        <Calendar
+          value={new Date()}
+          locale="tr-TR"
+          showNeighboringMonth={false}
+          tileDisabled={() => true} // tıklamayı pasif yaparsan: opsiyonel
+        />
+      </div>
+
     </div>
+    
   );
 };
 

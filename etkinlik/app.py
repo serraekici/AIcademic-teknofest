@@ -109,7 +109,7 @@ if len(results) < 5:
             event = convert_event(e, "Genel")
             if not any(ev["title"] == event["title"] for ev in results):
                 results.append(event)
-            if len(results) >= 5:
+            if len(results) >= 8:
                 break
 
 # JSON'a kaydet

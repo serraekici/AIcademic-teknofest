@@ -3,7 +3,7 @@ import json
 import unicodedata
 import re
 
-# ✅ Türkçe karakter temizleyici
+#  Türkçe karakter temizleyici
 def normalize(text):
     text = unicodedata.normalize("NFKD", text).encode("ASCII", "ignore").decode()
     text = text.replace("ı", "i")
@@ -12,7 +12,7 @@ def normalize(text):
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
-# ✅ Bölüm filtreleme fonksiyonu (otomatik sıralama genişlemeli)
+#  Bölüm filtreleme fonksiyonu (otomatik sıralama genişlemeli)
 def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", siralama_kullanici: float = None, sehirler: list = None, sinava_girdi: bool = True):
     data_path = os.path.join(os.path.dirname(__file__), 'data', 'data.json')
 
@@ -37,7 +37,7 @@ def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", sirala
         "DIS": ["DIS", "DIS HEKIMLIGI", "DISHEKIMLIGI", "DISH"]  # yeni eklenen
     }
 
-    # 🔁 Sıralama aralığını otomatik artır
+    #  Sıralama aralığını otomatik artır
     if sinava_girdi and siralama_kullanici:
         alt = siralama_kullanici * 0.8
         ust_baslangic = siralama_kullanici * 2
@@ -106,7 +106,7 @@ def filtrele_json_programlar(puan_turu: str = None, ilgi_alani: str = "", sirala
         filtrelenmis.sort(key=lambda x: x["siralama_float"] if x["siralama_float"] is not None else float("inf"))
         return filtrelenmis[:24]
 
-    # 🟡 Sınava girmediyse veya sıralama yoksa: sıralamasız filtreleme
+    #  Sınava girmediyse veya sıralama yoksa: sıralamasız filtreleme
     uygunlar = []
 
     for uni in data.values():

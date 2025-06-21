@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sınav Takvimi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      background-color: #78a1dd;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background-color: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 14px;
+      text-align: left;
+    }
+    thead {
+      background-color: #f0f0f0;
+    }
+    tr {
+      border-bottom: 1px solid #eee;
+    }
+    tr:hover {
+      background-color: #f9f9f9;
+    }
+    .lesson {
+      font-weight: 600;
+      color: #2b2d42;
+    }
+    .tag {
+      padding: 4px 8px;
+      background-color: #edf2f7;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #555;
+    }
+    .footer-note {
+      text-align: center;
+      font-size: 13px;
+      color: #888;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="schedule.html">
+    </a>
+    
+
+    <table id="schedule-table">
+      <thead>
+        <tr>
+          <th>Ders</th>
+          <th>Sınav Türü</th>
+          <th>Tarih</th>
+          <th>Saat</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    
+  </div>
+
+  <script>
+    const token = localStorage.getItem("access");
+
+    fetch("http://127.0.0.1:8000/api/schedule/", {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector("#schedule-table tbody");
+        data.forEach(item => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td class="lesson">${item.lesson}</td>
+            <td><span class="tag">${item.exam_type}</span></td>
+            <td>${item.exam_date}</td>
+            <td>${item.exam_time}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      })
+      .catch(err => {
+        alert("Veriler alınamadı. Lütfen giriş yaptığınızdan emin olun.");
+        window.location.href = "login.html";
+      });
+
+    const scheduleBtn = document.getElementById("schedule-btn");
+    scheduleBtn.addEventListener("click", () => {
+    window.location.href = "schedule.html";
+  });
+  </script>
+</body>
+</html>

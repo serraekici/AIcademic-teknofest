@@ -1,108 +1,113 @@
 body,
 .favorites-root-bg {
-  background: #f7f9fb !important;
+  background: linear-gradient(to right, #f3e5f5, #e3f2fd); /* mor → mavi geçiş */
   min-height: 100vh;
-  width: 100vw;
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
 }
 
+/* Sayfa Kutusu */
 .favorites-page {
-  max-width: 650px;
-  margin: 40px auto;
-  padding: 20px;
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(60,60,90,0.07);
+  max-width: 680px;
+  margin: 50px auto;
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(60, 60, 90, 0.08);
+  backdrop-filter: blur(4px);
 }
 
+/* Geri Butonu */
 .back-btn {
-  background: #f4f6fa;
-  color: #22396f;
+  background: #8e24aa;
+  color: white;
   border: none;
-  border-radius: 8px;
-  padding: 7px 14px;
-  font-size: 16px;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 15px;
   cursor: pointer;
-  margin-bottom: 18px;
   font-weight: 600;
-  transition: background 0.15s;
+  transition: background 0.2s, transform 0.2s;
 }
 .back-btn:hover {
-  background: #e6e8ee;
+  background: #6a1b9a;
+  transform: scale(1.03);
 }
 
+/* Başlık */
 .favorites-title {
-  margin-top: 0;
-  margin-bottom: 24px;
-  color: #2940d3;
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: 1px;
+  font-size: 28px;
+  font-weight: 800;
+  color: #512da8;
+  margin: 24px 0 18px;
+  text-align: center;
+  letter-spacing: 0.5px;
 }
 
+/* Boş Durum */
 .no-favorites {
-  color: #888;
+  color: #666;
   text-align: center;
   font-style: italic;
-  font-size: 18px;
+  font-size: 17px;
 }
 
+/* Favori Liste Kutuları */
 .favorites-list {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
+/* Kaynak Kartı */
 .resource-card {
+  background: linear-gradient(145deg, #ffffff, #f3f3f8);
+  border-radius: 16px;
+  padding: 22px 32px 20px 22px;
+  box-shadow: 0 6px 18px rgba(80, 90, 110, 0.08);
   position: relative;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 2px 10px 0 rgba(80,90,110,0.06);
-  padding: 20px 32px 20px 18px;
-  min-height: 62px;
-  transition: box-shadow 0.2s;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .resource-card:hover {
-  box-shadow: 0 6px 24px 0 rgba(80,90,110,0.10);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(142, 36, 170, 0.2);
 }
 
+/* Yıldız Butonu */
 .star-btn {
   position: absolute;
-  top: 14px;
-  right: 18px;
-  font-size: 26px;
+  top: 16px;
+  right: 20px;
+  font-size: 28px;
   background: none;
   border: none;
   cursor: pointer;
-  color: #b0b5c6;
-  transition: color 0.15s, transform 0.15s;
-  padding: 0;
+  color: #ccc;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 .star-btn.favorited {
-  color: #f5b301;
-  text-shadow: 0 1px 4px #ffeda0;
+  color: #ffb300;
+  text-shadow: 0 2px 4px rgba(255, 206, 100, 0.4);
 }
 .star-btn:hover {
-  color: #edc700;
-  transform: scale(1.18);
+  transform: scale(1.2);
 }
 
+/* Kaynak İçerik */
 .resource-content {
-  color: #22396f;
-  font-size: 16px;
+  color: #333;
+  font-size: 17px;
   line-height: 1.65;
-  word-break: break-word;
-  margin-top: 2px;
+  margin-top: 6px;
 }
 
+/* Responsive Tasarım */
 @media (max-width: 700px) {
   .favorites-page {
-    max-width: 97vw;
-    padding: 10px;
-  }
-  .resource-card {
-    padding: 14px 18px 14px 10px;
+    max-width: 92vw;
+    padding: 14px;
   }
   .favorites-title {
-    font-size: 21px;
+    font-size: 22px;
   }
 }

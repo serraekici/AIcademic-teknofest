@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { jwtDecode } from 'jwt-decode';
 import '../styles/Dashboard.css';
 import Sidebar from '../components/Sidebar';
-import logo from '../logo.svg';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
@@ -40,7 +38,7 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/local-events/")  // kendi API adresine göre ayarla
+    fetch("http://localhost:8000/api/local-events/")
       .then(res => res.json())
       .then(data => setEvents(data))
       .catch(err => console.error("Etkinlik verisi alınamadı:", err));
@@ -59,29 +57,32 @@ const Dashboard = () => {
     <div className="dashboard-container" style={{ display: "flex" }}>
       <Sidebar />
 
-      <div className="main-content" style={{ flex: 2, padding: 20 }}>
+      <div className="main-content" style={{ flex: 0, padding: 20}}>
         <div className="logo-section" style={{ textAlign: "center", marginBottom: 20 }}>
-          <img src={logo} alt="Logo" className="main-logo" style={{ width: 120 }} />
-          <h2>Hoş geldin {username}!</h2>
+          <h2 style={{ color: "#111111", fontWeight: 600 }}>Hoş geldin {username}!</h2>
         </div>
 
         {/* Chatbot Flip Kartları */}
         <div className="chatbot-section" style={{ display: "flex", gap: 16, marginBottom: 20 }}>
-          <FlipCard
-            front="GPT Çalışma Planı Chatbotu"
-            back="Günlük çalışma planlarını yapay zekayla oluştur!"
-            onClick={() => navigate("/chatbot-plan")}
-          />
-          <FlipCard
-            front="Kaynak Chatbot"
-            back="Ders kaynakları, kitap ve makale önerileri!"
-            onClick={() => navigate("/kaynakchatbot")}
-          />
-          <FlipCard
-            front="Tercih Chatbotu"
-            back="Üniversite tercihlerini akıllı sistemle yap!"
-            onClick={() => navigate("/tercihchatbot")}
-          />
+          <div className="chatbot-section">
+            <div className="chatbot-card" onClick={() => navigate("/kaynakchatbot")}>
+              <img src="kc.png" alt="Kaynak Chatbot" className="chatbot-image" />
+              
+              <div className="chatbot-description">Ders kitapları ve akademik makale önerileri al.</div>
+            </div>
+
+            <div className="chatbot-card" onClick={() => navigate("/tercihchatbot")}>
+              <img src="tc.png" alt="Tercih Chatbot" className="chatbot-image" />
+              
+              <div className="chatbot-description">İlgi alanına göre bölüm ve üniversite önerileri al.</div>
+            </div>
+
+            <div className="chatbot-card" onClick={() => navigate("/chatbot-plan")}>
+              <img src="pc.png" alt="Plan Chatbot" className="chatbot-image" />
+             
+              <div className="chatbot-description">Sana özel haftalık sınav ve çalışma planı önerir.</div>
+            </div>
+          </div>
         </div>
 
         <div style={{ margin: "10px 0 8px 0" }}>
@@ -97,14 +98,8 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="right-section" style={{ flex: 1, padding: 20 }}>
-        {/* Takvim */}
-        <div style={boxStyle}>
-          <div style={boxTitleStyle}>📅 Takvim</div>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <Calendar />
-          </div>
-        </div>
+      <div className="right-section" style={{ width: 300, padding: 20 }}>
+
 
         {/* Etkinlikler */}
         <div style={{ ...boxStyle, marginTop: 20 }}>
@@ -113,48 +108,46 @@ const Dashboard = () => {
           {events.length === 0 ? (
             <div style={{ fontStyle: "italic", color: "#888" }}>Etkinlik bulunamadı.</div>
           ) : (
-            events.slice(0, 3).map(event => (
-              <div key={event.url} style={eventCardStyle}>
-                <div style={imageContainerStyle}>
-                  <img
-                    src={event.image || 'https://via.placeholder.com/80x80?text=Görsel+Yok'}
-                    alt="Etkinlik Görseli"
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    onError={(e) => e.target.src = 'https://via.placeholder.com/80x80?text=Görsel+Yok'}
-                  />
-                </div>
+            events.slice(0, 6).map(event => {
+              console.log("🎯 Etkinlik başlığı:", event.title);
+              console.log("🖼️ Görsel URL:", event.image);
 
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: "bold", fontSize: 13, marginBottom: 4, color: "#111" }}>
-                    {emojis[event.category]} {event.title}
-                  </div>
-                  <div style={{ fontSize: 11, color: "#555", marginBottom: 6 }}>
-                    {event.city} - {event.start}
+              return (
+                <div key={event.url} style={eventCardStyle}>
+                  <div style={imageContainerStyle}>
+                    <img
+                      src={
+                        event.image && event.image.startsWith("http")
+                          ? event.image
+                          : 'https://via.placeholder.com/80x80?text=Görsel+Yok'
+                      }
+                      alt="Etkinlik Görseli"
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      onError={(e) => e.target.src = 'https://via.placeholder.com/80x80?text=Görsel+Yok'}
+                    />
                   </div>
 
-                  <a href={event.url} target="_blank" rel="noopener noreferrer"
-                    style={inceleBtnStyle}>
-                    İncele
-                  </a>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: "bold", fontSize: 13, marginBottom: 4, color: "#111" }}>
+                      {emojis[event.category]} {event.title}
+                    </div>
+                    <div style={{ fontSize: 11, color: "#555", marginBottom: 6 }}>
+                      {event.city} - {event.start}
+                    </div>
+
+                    <a href={event.url} target="_blank" rel="noopener noreferrer" style={inceleBtnStyle}>
+                      İncele
+                    </a>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
     </div>
   );
 };
-
-// Flip Card Bileşeni
-const FlipCard = ({ front, back, onClick }) => (
-  <div className="flip-card" onClick={onClick}>
-    <div className="flip-card-inner">
-      <div className="flip-card-front">{front}</div>
-      <div className="flip-card-back">{back}</div>
-    </div>
-  </div>
-);
 
 // Stil Sabitleri
 const planCardStyle = {
@@ -190,11 +183,13 @@ const boxStyle = {
   padding: 16,
   textAlign: "center"
 };
-
 const boxTitleStyle = {
   fontWeight: "bold",
-  fontSize: 17,
-  marginBottom: 10
+  fontSize: 15,
+  marginBottom: 10,
+  color: "#111111",      // 🌟 siyah yazı
+  backgroundColor: "transparent", // arka plan yok
+  padding: "4px 0"
 };
 
 const eventCardStyle = {
@@ -203,7 +198,7 @@ const eventCardStyle = {
   backgroundColor: "#f9fafb",
   borderRadius: 8,
   marginBottom: 10,
-  boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+  boxShadow: "#a183aa 0px 1px 4px", // 🌟 Burası!
   overflow: "hidden",
   padding: 8
 };

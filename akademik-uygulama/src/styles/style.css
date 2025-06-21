@@ -29,14 +29,14 @@ git body {
     
   }
   
-  .left {
-    background-color: #f9f9f9;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  
+ .left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;    /* yatay ortalama */
+  justify-content: center; /* dikey ortalama */
+  text-align: center;
+}
+
   
   .left img {
     width: 80%;
