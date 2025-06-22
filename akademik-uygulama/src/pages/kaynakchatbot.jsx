@@ -27,7 +27,16 @@ function ResourceCard({ html, onStarClick, isFavorited }) {
       >
         {isFavorited ? "⭐" : "☆"}
       </div>
-      <div dangerouslySetInnerHTML={{ __html: html }} />
+      <div
+        className="html-content"
+        style={{
+          fontSize: "15px",
+          lineHeight: 1.5,
+          color: "#333"
+        }}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+
     </div>
   );
 }

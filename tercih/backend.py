@@ -24,13 +24,19 @@ def normalize(text):
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
+def fuzzy_match(uni_name_norm, json_name_norm):
+    return all(part in json_name_norm for part in uni_name_norm.split() if len(part) > 3)
+
+
 def make_clickable(link):
+    link = link.strip()
     if link.startswith("http://") or link.startswith("https://"):
         return link
-    elif link.startswith("www."):
+    if link.startswith("www."):
         return "https://" + link
-    else:
-        return "https://" + link
+    # Doğrudan isim verilmişse (örn: sbu.edu.tr)
+    return "https://" + link
+
 
 
 app = Flask(__name__, static_folder="static", static_url_path="")
@@ -88,18 +94,25 @@ def analyze_and_recommend():
     sonuc = []
     for t in tercihler:
         uni_adi_norm = normalize(t['üniversite'])
+
         video_link = next(
             (url for title, url in uni_video_links.items() if uni_adi_norm in normalize(title)),
             ""
         )
-        web_link = next(
-            (
-                u['web'] for u in universities_data
-                if (normalize(u.get("name", "")) in uni_adi_norm or uni_adi_norm in normalize(u.get("name", "")))
-                and normalize(t["şehir"]) in normalize(u.get("address", ""))
-            ),
-            ""
-        )
+        print(f"🎥 Uni: {t['üniversite']} → Video: {video_link}")
+
+        web_link = ""
+        for u in universities_data:
+            name_norm = normalize(u.get("name", ""))
+            if uni_adi_norm in name_norm or name_norm in uni_adi_norm:
+                web_link = u.get("web", "")
+                break
+            if fuzzy_match(uni_adi_norm, name_norm):
+                web_link = u.get("web", "")
+                break
+
+        print(f"🌐 {t['üniversite']} → Web: {web_link}")
+
 
         if web_link:
             web_link = make_clickable(web_link)
@@ -114,6 +127,7 @@ def analyze_and_recommend():
             "video_link": video_link,
             "web_site": web_link
         })
+
 
     return jsonify({"tercihler": sonuc})
 

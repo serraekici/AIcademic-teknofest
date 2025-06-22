@@ -18,6 +18,20 @@ import requests
 import os
 import json
 import pathlib
+from django.views.decorators.csrf import csrf_exempt
+import os
+import json
+from rest_framework.decorators import api_view
+from rest_framework.permissions import AllowAny
+from tercih.yok import filtrele_json_programlar
+import unicodedata
+import json
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+json_path = os.path.join(BASE_DIR, "tercih", "data", "universities.json")
+
+with open(json_path, "r", encoding="utf-8") as f:
+    universities = json.load(f)
 
 
 # JWT Custom View
@@ -182,3 +196,80 @@ def user_exam_list(request):
     exams = ExamSchedule.objects.filter(user=user)
     serializer = ExamScheduleSerializer(exams, many=True)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def analyze(request):
+    try:
+        message_json = json.loads(request.data.get("message", "{}"))
+        sinava_girdi = message_json.get("sınava_girdi")
+        puan_turu = message_json.get("puan_turu")
+        ilgi_alani = message_json.get("ilgi_alani")
+        siralama = float(message_json.get("siralama") or 0)
+        sehirler = message_json.get("sehirler")
+
+        tercihler = filtrele_json_programlar(
+            sinava_girdi=sinava_girdi,
+            puan_turu=puan_turu,
+            ilgi_alani=ilgi_alani,
+            siralama_kullanici=siralama,
+            sehirler=sehirler if sehirler != "yok" else None
+        )
+
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+        video_path = os.path.join(base_dir, "tercih", "data", "uni_video_links.json")
+        uni_path = os.path.join(base_dir, "tercih", "data", "universities.json")
+
+        with open(video_path, "r", encoding="utf-8") as f:
+            video_links = json.load(f)
+
+        with open(uni_path, "r", encoding="utf-8") as f:
+            university_data = json.load(f)
+
+        # Normalize fonksiyonu
+        def normalize(text):
+            text = unicodedata.normalize("NFKD", text).encode("ASCII", "ignore").decode()
+            text = text.replace("ı", "i")
+            text = text.upper()
+            return text.strip()
+
+        for t in tercihler:
+            uni_upper = normalize(t["üniversite"])
+
+            # Tanıtım videosu eşle
+            matched_video = next((link for title, link in video_links.items() if uni_upper in normalize(title)), None)
+            t["video_link"] = matched_video or None
+
+            # Web sitesi eşle
+            matched_uni = next((u for u in university_data if normalize(u["name"]) == uni_upper), None)
+            t["web_site"] = matched_uni["web"] if matched_uni and "web" in matched_uni else ""
+
+        return Response({"tercihler": tercihler})
+    except Exception as e:
+        return Response({"error": str(e)})
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def university_detail(request):
+    try:
+        query = request.data.get("name", "").strip().lower()
+
+        json_path = os.path.join(os.path.dirname(__file__), "../tercih/data/universities.json")
+        with open(json_path, "r", encoding="utf-8") as f:
+            universities = json.load(f)
+
+        # Toleranslı arama: tüm kelimelerin name içinde geçip geçmediğine bak
+        matches = [
+            uni for uni in universities
+            if all(word in uni["name"].lower() for word in query.split())
+        ]
+
+        if matches:
+            return Response({"universiteler": matches})
+        else:
+            return Response({"error": "Üniversite bilgisi bulunamadı."})
+
+    except Exception as e:
+        return Response({"error": str(e)})

@@ -72,7 +72,7 @@
   }
 
   button:hover {
-    background-color: #6a1b9a;
+    background-color: #967ea4;
   }
 
   .bot, .user {
@@ -167,13 +167,16 @@ function addMessage(text, sender, typing = false) {
   const chat = document.getElementById("chat");
   const div = document.createElement("div");
   div.className = sender;
-  chat.appendChild(div);
 
   if (typing && sender === "bot") {
     let index = 0;
+    const tempSpan = document.createElement("span");
+    div.appendChild(tempSpan);
+    chat.appendChild(div);
+
     function type() {
       if (index < text.length) {
-        div.innerHTML += text[index];
+        tempSpan.innerHTML += text[index];
         index++;
         setTimeout(type, 20);
         chat.scrollTop = chat.scrollHeight;
@@ -181,10 +184,13 @@ function addMessage(text, sender, typing = false) {
     }
     type();
   } else {
-    div.innerHTML = text;
+    div.innerHTML = text;  // HTML olarak yaz
+    chat.appendChild(div); // DOM'a ekle
     chat.scrollTop = chat.scrollHeight;
   }
+  
 }
+
 
 function handleKeyPress(event) {
   if (event.key === "Enter") {
@@ -299,7 +305,7 @@ async function sendSessionToBackend() {
   };
 
   try {
-    const response = await fetch("analyze", {
+    const response = await fetch("/analyze/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(toSend)
@@ -316,13 +322,16 @@ async function sendSessionToBackend() {
       addMessage("😔 Üzgünüm, sana uygun bölüm bulamadım.", "bot", true);
     } else {
       data.tercihler.forEach(item => {
-        addMessage(`
+        const html = `
           <b>🎓 ${item.üniversite}</b><br>
           📚 ${item.bölüm} (${item.şehir})<br>
           🎯 Sıralama: ${item.sıralama} | 📊 Puan: ${item.puan} | 🎓 Burs: ${item.burs}<br>
-          ${item.video_link ? `🎥 <a href="${item.video_link}" target="_blank">Tanıtım Videosu</a> | ` : ""}
-          🌐 <a href="${item.web_site}" target="_blank">Web Sitesi</a>
-        `, "bot", false);
+          ${item.video_link ? `🎥 <a href="${item.video_link}" target="_blank" rel="noopener noreferrer">Tanıtım Videosu</a> | ` : ""}
+          🌐 <a href="${item.web_site}" target="_blank" rel="noopener noreferrer">Web Sitesi</a>
+        `;
+
+        addMessage(html, "bot", false);
+
       });
     }
 
@@ -334,20 +343,17 @@ async function sendSessionToBackend() {
 
 async function findUniversityDetails(universityName) {
   try {
-    const response = await fetch("university-detail", {
+    const response = await fetch("/university-detail/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: universityName })
     });
 
     const data = await response.json();
+    console.log("🧾 Gelen veri:", data);
 
-    if (data.error) {
-      addMessage(`❗ ${data.error}`, "bot", true);
-      return;
-    }
-
-    if (data.universiteler) {
+    // Eğer 'universiteler' listesi varsa
+    if (data.universiteler && data.universiteler.length > 0) {
       data.universiteler.forEach(u => {
         addMessage(`
           <div class="card">
@@ -361,7 +367,10 @@ async function findUniversityDetails(universityName) {
           </div>
         `, "bot", false);
       });
-    } else {
+    }
+
+    // Eğer tek bir nesne geldiyse (liste yoksa)
+    else if (data.name) {
       addMessage(`
         <div class="card">
           📚 <b>${data.name}</b><br>
@@ -374,10 +383,24 @@ async function findUniversityDetails(universityName) {
         </div>
       `, "bot", false);
     }
+
+    // Ne liste ne obje gelmediyse
+    else {
+      addMessage("❗ Üniversite bilgisi bulunamadı.", "bot", true);
+    }
+
   } catch (error) {
     addMessage(`⚠️ Detaylar getirilemedi: ${error.message}`, "bot", true);
   }
 }
+
+document.addEventListener("click", function (e) {
+  const link = e.target.closest("a");
+  if (link && link.target === "_blank") {
+    e.preventDefault();
+    window.open(link.href, "_blank");
+  }
+});
 
 </script>
 

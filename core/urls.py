@@ -8,6 +8,11 @@ from .views import (
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import ExamScheduleViewSet
+from django.urls import path
+from .views import analyze, university_detail
+from django.contrib import admin
+from django.urls import path
+from .views import analyze, university_detail
 
 exam_schedule_list = ExamScheduleViewSet.as_view({'get': 'list'})
 
@@ -31,5 +36,6 @@ urlpatterns = router.urls + [
     path('ticketmaster-events/', ticketmaster_events),
     path('local-events/', local_ticketmaster_events),  # 🌟 EN ÖNEMLİ SATIR BU 🌟
     path('user-exams/', exam_schedule_list),
-
+    path('analyze/', analyze),
+    path('university-detail/', university_detail),
 ]
