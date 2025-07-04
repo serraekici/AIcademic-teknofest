@@ -71,11 +71,12 @@ const Dashboard = () => {
               <div className="chatbot-description">Ders kitapları ve akademik makale önerileri al.</div>
             </div>
 
-            <div className="chatbot-card" onClick={() => navigate("/tercihchatbot")}>
-                  <img src={`${process.env.PUBLIC_URL}/tc.png`} alt="Tercih Chatbot" className="chatbot-image" />
-              
-              <div className="chatbot-description">İlgi alanına göre bölüm ve üniversite önerileri al.</div>
-            </div>
+            <a href={`${process.env.PUBLIC_URL}/tercihchatbot.html`} target="_blank" rel="noopener noreferrer">
+              <div className="chatbot-card">
+                <img src={`${process.env.PUBLIC_URL}/tc.png`} alt="Tercih Chatbot" className="chatbot-image" />
+                <div className="chatbot-description">İlgi alanına göre bölüm ve üniversite önerileri al.</div>
+              </div>
+            </a>
 
             <div className="chatbot-card" onClick={() => navigate("/chatbot-plan")}>
                   <img src={`${process.env.PUBLIC_URL}/pc.png`} alt="Plan Chatbot" className="chatbot-image" />
