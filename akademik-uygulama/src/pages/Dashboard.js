@@ -66,20 +66,20 @@ const Dashboard = () => {
         <div className="chatbot-section" style={{ display: "flex", gap: 16, marginBottom: 20 }}>
           <div className="chatbot-section">
             <div className="chatbot-card" onClick={() => navigate("/kaynakchatbot")}>
-              <img src="kc.png" alt="Kaynak Chatbot" className="chatbot-image" />
+              <img src={`${process.env.PUBLIC_URL}/kc.png`} alt="Kaynak Chatbot" className="chatbot-image" />
               
               <div className="chatbot-description">Ders kitapları ve akademik makale önerileri al.</div>
             </div>
 
             <div className="chatbot-card" onClick={() => navigate("/tercihchatbot")}>
-              <img src="tc.png" alt="Tercih Chatbot" className="chatbot-image" />
+                  <img src={`${process.env.PUBLIC_URL}/tc.png`} alt="Tercih Chatbot" className="chatbot-image" />
               
               <div className="chatbot-description">İlgi alanına göre bölüm ve üniversite önerileri al.</div>
             </div>
 
             <div className="chatbot-card" onClick={() => navigate("/chatbot-plan")}>
-              <img src="pc.png" alt="Plan Chatbot" className="chatbot-image" />
-             
+                  <img src={`${process.env.PUBLIC_URL}/pc.png`} alt="Plan Chatbot" className="chatbot-image" />
+
               <div className="chatbot-description">Sana özel haftalık sınav ve çalışma planı önerir.</div>
             </div>
           </div>
