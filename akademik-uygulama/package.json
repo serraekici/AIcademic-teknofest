@@ -1,8 +1,8 @@
 {
   "name": "akademik-uygulama",
   "version": "0.1.0",
-  "homepage": "https://serraekici.github.io/AIcademic-teknofest",
   "private": true,
+  "homepage": "https://serraekici.github.io/AIcademic-teknofest",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",

@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/static/css/main.fe16faee.css",
-    "main.js": "/static/js/main.46599514.js",
-    "static/js/453.47bcd544.chunk.js": "/static/js/453.47bcd544.chunk.js",
-    "index.html": "/index.html",
-    "main.fe16faee.css.map": "/static/css/main.fe16faee.css.map",
-    "main.46599514.js.map": "/static/js/main.46599514.js.map",
-    "453.47bcd544.chunk.js.map": "/static/js/453.47bcd544.chunk.js.map"
+    "main.css": "/AIcademic-teknofest/static/css/main.fe16faee.css",
+    "main.js": "/AIcademic-teknofest/static/js/main.e18465eb.js",
+    "static/js/453.47bcd544.chunk.js": "/AIcademic-teknofest/static/js/453.47bcd544.chunk.js",
+    "index.html": "/AIcademic-teknofest/index.html",
+    "main.fe16faee.css.map": "/AIcademic-teknofest/static/css/main.fe16faee.css.map",
+    "main.e18465eb.js.map": "/AIcademic-teknofest/static/js/main.e18465eb.js.map",
+    "453.47bcd544.chunk.js.map": "/AIcademic-teknofest/static/js/453.47bcd544.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.fe16faee.css",
-    "static/js/main.46599514.js"
+    "static/js/main.e18465eb.js"
   ]
 }
