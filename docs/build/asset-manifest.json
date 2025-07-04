@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/AIcademic-teknofest/static/css/main.fe16faee.css",
+    "main.js": "/AIcademic-teknofest/static/js/main.e18465eb.js",
+    "static/js/453.47bcd544.chunk.js": "/AIcademic-teknofest/static/js/453.47bcd544.chunk.js",
+    "index.html": "/AIcademic-teknofest/index.html",
+    "main.fe16faee.css.map": "/AIcademic-teknofest/static/css/main.fe16faee.css.map",
+    "main.e18465eb.js.map": "/AIcademic-teknofest/static/js/main.e18465eb.js.map",
+    "453.47bcd544.chunk.js.map": "/AIcademic-teknofest/static/js/453.47bcd544.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.fe16faee.css",
+    "static/js/main.e18465eb.js"
+  ]
+}
